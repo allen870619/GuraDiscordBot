@@ -462,9 +462,12 @@ async def messageReact(self, client, ctx):
         # 預設顯示圖床圖片
         dbUrl = SQL.queryUrl(ctx.content.lower())
         if dbUrl != "":
-            if dbUrl[2] == 1:
+            if dbUrl[2] == True:
                 await ctx.delete()
-            await showImg(ctx, dbUrl[0], dbUrl[1])
+            if dbUrl[3] == True:
+                await showImg(ctx, dbUrl[0], dbUrl[1])
+            else:
+                await ctx.channel.send(dbUrl[0])
 
 
 async def memeWarning(self, client, ctx, memo=None):

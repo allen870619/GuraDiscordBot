@@ -18,7 +18,7 @@ def queryUrl(cmd=None):
                 sql = "SELECT * FROM PicCmd WHERE `cmd` = %s"
                 cursor.execute(sql, cmd)
             else:
-                sql = "SELECT * FROM PicCmd ORDER BY `cmd` asc"
+                sql = "SELECT * FROM PicCmd WHERE `show_in_help` = 1 ORDER BY `cmd` asc"
                 cursor.execute(sql, cmd)
             result = cursor.fetchall()
             if len(result) == 0:
@@ -30,7 +30,7 @@ def queryUrl(cmd=None):
                         list.append(i["cmd"])
                     return (list)
                 else:
-                    return (result[0]["url"], result[0]["color"], result[0]["need_delete"])
+                    return (result[0]["url"], result[0]["color"], result[0]["need_delete"], result[0]["need_embed"])
 
 
 def queryPrefixURL(channel):
