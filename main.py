@@ -77,13 +77,14 @@ class MyClient(discord.Client):
         await self.memeFilter(ctx)
 
         # 經驗值系統 (beta)
-        expSys=SQL.queryEnableExpSys(ctx.guild.id)
-        if expSys != None and expSys[1] == True:
-            exp=ExpModule.addUsrExp(ctx.author.id, ctx.guild.id)
-            if exp[0] == exp[1]:
-                ExpModule.upgradeUsrLv(ctx.author.id, ctx.guild.id)
-                chn = client.get_channel(expSys[0])
-                await chn.send("Congrats! <@%d> has upgraded to Level %d!"%(ctx.author.id, exp[2]+1))
+        if ctx.author.id != 879980183522779137 and ctx.author.id != 950919884802510890:
+            expSys=SQL.queryEnableExpSys(ctx.guild.id)
+            if expSys != None and expSys[1] == True:
+                exp=ExpModule.addUsrExp(ctx.author.id, ctx.guild.id)
+                if exp[0] == exp[1]:
+                    ExpModule.upgradeUsrLv(ctx.author.id, ctx.guild.id)
+                    chn = client.get_channel(expSys[0])
+                    await chn.send("Congrats! <@%d> has upgraded to Level %d!"%(ctx.author.id, exp[2]+1))
 
         # 觸發區域限制
         if ctx.guild.id == 273814671985999873: #一言堂用
