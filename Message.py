@@ -1,5 +1,7 @@
 import discord
 import subprocess
+import asyncio
+from DrawCard import drawCard, cardPool
 import LeetcodeCrawler as LCC
 import MusicModule
 import time
@@ -17,37 +19,42 @@ from PsutilSensor import getAllInfo
 
 # proxy chat
 isProxyMode = False
-proxyList=[]
+proxyList = []
 
 # Utils: show image
+
+
 async def showImg(ctx, targetUrl, color=None):
     embed = discord.Embed(color=colorToHex(color))
     embed.set_image(url=targetUrl)
     await ctx.channel.send(embed=embed)
 
 # Utils: Embed
-def embedCreator(title, description, color=None, authorName=None, authorUrl=None, thumbnailUrl = None, imageUrl = None):
+
+
+def embedCreator(title, description, color=None, authorName=None, authorUrl=None, thumbnailUrl=None, imageUrl=None):
     embed = discord.Embed(
         title=title,
         colour=discord.Colour(colorToHex(color)),
         description=description
         # url="https://www.google.com", # this is the link for title
     )
-    
+
     if authorName != None:
-        if authorUrl != None:            
-            embed.set_author(name=authorName,icon_url=authorUrl)
+        if authorUrl != None:
+            embed.set_author(name=authorName, icon_url=authorUrl)
         else:
             embed.set_author(name=authorName)
 
     if thumbnailUrl != None:
-        embed.set_thumbnail(url=thumbnailUrl) # right image (small)
+        embed.set_thumbnail(url=thumbnailUrl)  # right image (small)
 
     if imageUrl != None:
-        embed.set_image(url=imageUrl) # bottom image (large)
+        embed.set_image(url=imageUrl)  # bottom image (large)
 
     embed.set_footer(text="")
     return embed
+
 
 async def messageReact(self, client, ctx):
     global isProxyMode, proxyList
@@ -58,13 +65,13 @@ async def messageReact(self, client, ctx):
     # 直接播音樂模組: 頻道名稱有 '音樂' 或 'music' 才會觸發
     if "music" in ctx.channel.name or "音樂" in ctx.channel.name:
         if ctx.content.startswith("http"):
-            origin = '!play ' + ctx.content # music channel directly paste url
+            origin = '!play ' + ctx.content  # music channel directly paste url
 
     # preprocess
     rawMsg = origin.split(sep=" ")
     msg = rawMsg[0]
     CMD_PF = SQL.queryPrefixURL(ctx.guild.id)
-    
+
     # proxy chat send
     if isProxyMode and "proxy" in ctx.channel.name:
         if origin == "!proxy":
@@ -228,13 +235,13 @@ async def messageReact(self, client, ctx):
     elif msg.lower() == CMD_PF + 'ayame':
         url = 'https://script.googleusercontent.com/macros/echo?user_content_key=OspWpl4Qc16jCdPwz6_BPHH5AOV_Zq1NIzWa9La-IGzsetFs_geoxiLZ-LgDlp4TR3O5NZR5OHn1-eF4sK-NFMcmF9r1nS69m5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnNqVaIg6uWIusfaT6109P6AiX8-Jc70itxwf3vkR0F4vwX0NWBNrxNkTEKkvViUG5ASCAyw-o_Tv2w637yi-8rE7WE8Pq9zTnw&lib=Mv0Flh1wcXT8fGz2m4i_W0fGCLS4z58-Q'
         resp = requests.get(url).json()
-        rawOnTime=datetime.strptime(resp["pubt"], "%Y-%m-%dT%H:%M:%SZ")
-        diff=datetime.now()-rawOnTime
+        rawOnTime = datetime.strptime(resp["pubt"], "%Y-%m-%dT%H:%M:%SZ")
+        diff = datetime.now()-rawOnTime
         hr = diff.seconds / 3600
         minute = (diff.seconds % 3600) / 60
         sec = diff.seconds % 60
         await ctx.channel.send('https://tenor.com/view/hololive-%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96-hologra-%E3%83%9B%E3%83%AD%E3%81%90%E3%82%89-nakiri-ayame-gif-23864357')
-        await ctx.channel.send("百鬼距離上次開台過了 %d天 %d小時 %d分 %d秒"%(diff.days, hr, minute,sec))
+        await ctx.channel.send("百鬼距離上次開台過了 %d天 %d小時 %d分 %d秒" % (diff.days, hr, minute, sec))
 
     # get off counter
     elif msg.lower() == CMD_PF + 'getoff':
@@ -244,14 +251,14 @@ async def messageReact(self, client, ctx):
         h = time.localtime().tm_hour
         m = time.localtime().tm_min
         s = time.localtime().tm_sec
-        nowDate = datetime(y,M,D,h,m,s)
-        off = datetime(y,M,D,17,30,00)
+        nowDate = datetime(y, M, D, h, m, s)
+        off = datetime(y, M, D, 17, 30, 00)
         diff = off-nowDate
         imgSrc = SQL.queryUrl("getoff")
         if diff.days < 0:
             await ctx.channel.send("下班摟~")
             if len(imgSrc) != 0:
-                await showImg(ctx, imgSrc[0] ,imgSrc[1])
+                await showImg(ctx, imgSrc[0], imgSrc[1])
         else:
             sec = diff.seconds
             if sec >= 34200:
@@ -260,7 +267,7 @@ async def messageReact(self, client, ctx):
                 hh = sec / 3600
                 mm = (sec % 3600) / 60
                 ss = sec % 60
-                await ctx.channel.send("還有 %d小時%d分%d秒 下班~"%(hh, mm, ss))
+                await ctx.channel.send("還有 %d小時%d分%d秒 下班~" % (hh, mm, ss))
 
     # proxy chat mode
     elif msg.lower() == CMD_PF + "proxy":
@@ -311,13 +318,14 @@ async def messageReact(self, client, ctx):
     # computer info
     elif msg.lower() == CMD_PF + 'status':
         await ctx.channel.send(getAllInfo())
-    
+
     # run script
     elif msg.lower() == CMD_PF + "sh":
         if len(rawMsg) == 2:
-            path=SQL.queryScriptPath(rawMsg[1].lower())
+            path = SQL.queryScriptPath(rawMsg[1].lower())
             if path != None:
-                result=subprocess.run(["sudo","bash",path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                result = subprocess.run(
+                    ["sudo", "bash", path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                 await ctx.channel.send(result.stdout)
 
     # caller
@@ -330,7 +338,7 @@ async def messageReact(self, client, ctx):
 
     # change name
     elif msg.lower() == CMD_PF + 'editname':
-        data=origin.split(" ", 2)
+        data = origin.split(" ", 2)
         usrId = int(data[1][2:-1])
         usr = ctx.guild.get_member(usrId)
         if usr != None and data[2] != '':
@@ -340,11 +348,12 @@ async def messageReact(self, client, ctx):
     elif msg.lower() == CMD_PF + 'exp':
         exp = SQL.queryUsrExp(ctx.author.id, ctx.guild.id)
         if exp != None:
-            embed=embedCreator(title="經驗值",
-            description="等級: Lv.%d\n總經驗: %d\n升至下一級還差: %d"%(exp[2],exp[0],exp[1]-exp[0]),
-            color="#b9d3e9",
-            authorName=ctx.author,
-            thumbnailUrl=ctx.author.avatar_url)
+            embed = embedCreator(title="經驗值",
+                                 description="等級: Lv.%d\n總經驗: %d\n升至下一級還差: %d" % (
+                                     exp[2], exp[0], exp[1]-exp[0]),
+                                 color="#b9d3e9",
+                                 authorName=ctx.author,
+                                 thumbnailUrl=ctx.author.avatar_url)
             await ctx.channel.send(embed=embed)
         else:
             await ctx.channel.send("此伺服器尚未啟動經驗系統")
@@ -365,6 +374,31 @@ async def messageReact(self, client, ctx):
     elif msg.lower() == 'ghp' and ctx.guild.id == 870855015676391505:
         await ctx.delete()
         await ctx.channel.send('<:gura_happy:922084439717187644>')
+
+    # 抽卡機
+    elif msg.lower() == CMD_PF + 'draw':
+        card = drawCard()
+        await ctx.channel.send('抽卡~~~~~')
+        await asyncio.sleep(3)
+        await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」' % (ctx.author.id, card.rarityData.name, card.name))
+
+    elif msg.lower() == CMD_PF + 'drawpool':
+        pool = cardPool()
+        embedList = []
+        colorList = ["#ec695e", "#ab5d75", "#6a518c", "#2a46a4"]
+        colorIndex = 0
+        for i in pool:
+            cardList = ""
+            for card in i[1]:
+                cardList += "%s \n -> %s%%\n" % (
+                    card[0].name, card[0].wholeProb)
+            title = "%s 卡池 (%s%%)" % (i[0].name, i[0].probability)
+            embedList.append(embedCreator(
+                title, cardList, colorList[colorIndex]))
+            colorIndex += 1
+
+        for i in embedList:
+            await ctx.channel.send(embed=i)
 
     # help
     elif msg == CMD_PF + '功能' or msg.lower() == CMD_PF + 'func' or msg.lower() == CMD_PF + 'help':
@@ -398,10 +432,10 @@ async def messageReact(self, client, ctx):
         )
 
         # leetcode
-        leetcodeDesc='''
+        leetcodeDesc = '''
         # %sleet [ac] 每日題目 / 通過率
         # %sleetrand 隨機題目
-        '''% (CMD_PF, CMD_PF)
+        ''' % (CMD_PF, CMD_PF)
         leetcode = embedCreator(
             title="---Leetcode功能---",
             description=leetcodeDesc,
@@ -409,7 +443,7 @@ async def messageReact(self, client, ctx):
         )
 
         # Music
-        musicDesc='''
+        musicDesc = '''
         # %sjoin / %skick 
         -呼叫/趕走唱歌的鯊鯊(請在語音頻道使用)
         # %splay [1, 2, 3, 4, <url>] 
@@ -418,15 +452,26 @@ async def messageReact(self, client, ctx):
         # %sstop -停止(清單會被清除)
         # %snext -清單下一首
         # %slist [clear] -清單/清單清除
-        '''% (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
         music = embedCreator(
             title="---鯊魚廣播---",
             description=musicDesc,
             color="#6582c9",
         )
 
+        # Draw
+        drawCardDesc = '''
+        # %sdraw 抽卡
+        # %sdrawPool 卡池資訊
+        ''' % (CMD_PF, CMD_PF)
+        drawCardHint = embedCreator(
+            title="---血統認證機(開發中)---",
+            description=drawCardDesc,
+            color="#819dd4",
+        )
+
         # Others
-        otherDesc='''
+        otherDesc = '''
         # %sstatus 主機狀態
         # %scs [state] 變更鯊魚狀態
         # %seditName <tag user> <nickname> 變更暱稱
@@ -434,14 +479,14 @@ async def messageReact(self, client, ctx):
         # %sayame 百鬼開台計時器
         # %s集合 / %sgather
         # %sexp 查看自己的經驗值
-        '''% (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
         other = embedCreator(
             title="---其他功能---",
             description=otherDesc,
             color="#4967bf",
         )
 
-         # Pic
+        # Pic
         picDesc = ""
         for i in SQL.queryUrl():
             picDesc += "# %s\n" % (i)
@@ -455,8 +500,9 @@ async def messageReact(self, client, ctx):
         await ctx.channel.send(embed=intro)
         await ctx.channel.send(embed=leetcode)
         await ctx.channel.send(embed=music)
+        await ctx.channel.send(embed=drawCardHint)
         await ctx.channel.send(embed=other)
-        await ctx.channel.send(embed=pic)            
+        await ctx.channel.send(embed=pic)
 
     else:
         # 預設顯示圖床圖片
