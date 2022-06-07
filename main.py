@@ -1,4 +1,3 @@
-from pprint import pprint
 import discord
 import datetime
 import requests
