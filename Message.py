@@ -378,8 +378,7 @@ async def messageReact(self, client, ctx):
     # 抽卡機
     elif msg.lower() == CMD_PF + 'draw':
         card = drawCard()
-        await ctx.channel.send('抽卡~~~~~')
-        await asyncio.sleep(3)
+        await ctx.channel.send('抽卡\~\~\~\~\~')
         await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」' % (ctx.author.id, card.rarityData.name, card.name))
 
     elif msg.lower() == CMD_PF + 'drawpool':
