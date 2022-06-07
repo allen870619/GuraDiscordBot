@@ -391,7 +391,7 @@ async def messageReact(self, client, ctx):
             cardList = ""
             for card in i[1]:
                 cardList += "%s \n -> %s%%\n" % (
-                    card[0].name, card[0].wholeProb)
+                    card[0].name, card[0].probability)
             title = "%s 卡池 (%s%%)" % (i[0].name, i[0].probability)
             embedList.append(embedCreator(
                 title, cardList, colorList[colorIndex]))
