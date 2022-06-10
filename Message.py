@@ -1,11 +1,12 @@
 import discord
 import subprocess
-import asyncio
-from DrawCard import drawCard, cardPool
 import LeetcodeCrawler as LCC
 import MusicModule
 import time
 from datetime import datetime
+# 抽卡
+from DrawCard import drawCard, cardPool
+import DrawSQL
 # 發圖片請求用
 import requests
 # Requests基本設定Class
@@ -376,31 +377,65 @@ async def messageReact(self, client, ctx):
         await ctx.channel.send('<:gura_happy:922084439717187644>')
 
     # 抽卡機
+    # 抽卡
     elif msg.lower() == CMD_PF + 'draw':
-        card = drawCard()
+        coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
+        if coin < DrawSQL.drawCost:
+            await ctx.channel.send("代幣不足 QAQ")
+            return
+        DrawSQL.drawConsume(ctx.author.id, ctx.guild.id)
+        card = drawCard(ctx.author.id, ctx.guild.id)
         await ctx.channel.send('抽卡\~\~\~\~\~')
         await ctx.channel.send('.')
         await ctx.channel.send('.')
-        await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」' % (ctx.author.id, card.rarityData.name, card.name))
+        await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」, 剩餘代幣: %d' % (ctx.author.id, card.rarityData.name, card.name, coin-DrawSQL.drawCost))
 
+    # 卡池
     elif msg.lower() == CMD_PF + 'drawpool':
         pool = cardPool()
         embedList = []
         colorList = ["#ec695e", "#ab5d75", "#6a518c", "#2a46a4"]
         colorIndex = 0
-        for i in pool:
-            cardList = ""
-            for card in i[1]:
-                cardList += "%s \n -> %s%%\n" % (
-                    card[0].name, card[0].probability)
-            title = "%s 卡池 (%s%%)" % (i[0].name, i[0].probability)
+        for data in pool:
+            rarity = data[0]
+            cardList = data[1]
+
+            # form up text
+            title = "%s 卡池 (%s%%)" % (rarity.name, rarity.probability)
+            strCardList = ""
+            for card in cardList:
+                strCardList += "%s \n -> %s%%\n" % (card.name,
+                                                    card.probability)
+
             embedList.append(embedCreator(
-                title, cardList, colorList[colorIndex]))
+                title, strCardList, colorList[colorIndex]))
             colorIndex += 1
 
         for i in embedList:
             await ctx.channel.send(embed=i)
+    
+    #代幣餘額
+    elif msg.lower() == CMD_PF + "drawcoin":
+        coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
+        await ctx.channel.send("<@%d> 剩餘代幣: %d"%(ctx.author.id, coin))
 
+    # 查詢自己有的卡
+    elif msg.lower() == CMD_PF + "mycard":
+        list = DrawSQL.getUsrCardList(ctx.author.id, ctx.guild.id)
+        if len(list) == 0:
+            await ctx.channel.send("<@%d>卡片空空如也 0.0"%(ctx.author.id))
+            return
+        
+        allData = "<@%d> 持有的卡片\n"%(ctx.author.id)
+        for data in list:
+            # form up text
+            allData += "-----%s 卡-----\n" % (data[0]["rarity_name"])    
+            for card in data:
+                allData += "%s : %s張\n" % (card["card_name"],
+                                               card["card_mount"])
+            allData += "\n"
+        await ctx.channel.send(allData)
+        
     # help
     elif msg == CMD_PF + '功能' or msg.lower() == CMD_PF + 'func' or msg.lower() == CMD_PF + 'help':
         await showImg(ctx, 'https://c.tenor.com/TgPXdDAfIeIAAAAd/gawr-gura-gura.gif', '#b9d3e9')
@@ -464,7 +499,9 @@ async def messageReact(self, client, ctx):
         drawCardDesc = '''
         # %sdraw 抽卡
         # %sdrawPool 卡池資訊
-        ''' % (CMD_PF, CMD_PF)
+        # %sdrawCoin 查詢剩餘代幣
+        # %smycard 查詢持有的卡片
+        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF)
         drawCardHint = embedCreator(
             title="---血統認證機(開發中)---",
             description=drawCardDesc,

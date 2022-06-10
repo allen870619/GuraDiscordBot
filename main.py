@@ -83,8 +83,9 @@ class MyClient(discord.Client):
                 exp=ExpModule.addUsrExp(ctx.author.id, ctx.guild.id)
                 if exp[0] == exp[1]:
                     ExpModule.upgradeUsrLv(ctx.author.id, ctx.guild.id)
-                    chn = client.get_channel(expSys[0])
-                    await chn.send("Congrats! <@%d> has upgraded to Level %d!"%(ctx.author.id, exp[2]+1))
+                    if expSys[0] != None:
+                        chn = client.get_channel(expSys[0])
+                        await chn.send("Congrats! <@%d> has upgraded to Level %d!"%(ctx.author.id, exp[2]+1))
 
         # 觸發區域限制
         if ctx.guild.id == 273814671985999873: #一言堂用
