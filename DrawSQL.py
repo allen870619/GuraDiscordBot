@@ -142,7 +142,7 @@ def addDrawRecord(usrId, guildId, card):
 def getUsrCardList(usrId, guildId):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "SELECT B.name AS rarity_name,A.name AS card_name,A.card_mount,A.rarity FROM(SELECT usr_id,guild_id,card_mount,CardPool.*FROM CardUsrProperty INNER JOIN CardPool ON CardUsrProperty.card_id=CardPool.id)AS A LEFT JOIN CardRarity AS B ON A.rarity=B.id WHERE A.usr_id=%d AND A.guild_id=%d ORDER BY A.rarity,A.probability ASC" % (
+        sql = "SELECT card_id,B.name AS rarity_name,A.name AS card_name,A.card_mount,A.rarity FROM(SELECT card_id,usr_id,guild_id,card_mount,CardPool.*FROM CardUsrProperty INNER JOIN CardPool ON CardUsrProperty.card_id=CardPool.id)AS A LEFT JOIN CardRarity AS B ON A.rarity=B.id WHERE A.usr_id=%d AND A.guild_id=%d ORDER BY A.rarity, card_id, A.probability ASC" % (
             usrId, guildId)
         cursor.execute(sql)
         result = cursor.fetchall()
