@@ -1,8 +1,10 @@
+from datetime import datetime
 from SQLConnect import connect
 
 # 基礎資料
 
 drawCost = 10
+freeDraw = 3
 
 # 等級分區
 
@@ -56,14 +58,36 @@ def getUsrDrawCoin(usrId, guildId):
         else:
             return result["draw_coin"]
 
+# 免費抽卡
+def getFreeDraw(usrId, guildId):
+    connection = connect()
+    with connection.cursor() as cursor:
+        sql = "SELECT `free_draw`, `last_free_draw` FROM `CardUsrData` WHERE `usr_id`=%s AND `guild_id`=%s" % (
+            usrId, guildId)
+        cursor.execute(sql)
+        result = cursor.fetchone()
+        return result["free_draw"]            
+        
+# 更新免費抽卡
+def refreshFreeDraw():
+    connection = connect()
+    with connection.cursor() as cursor:
+        nowStr = datetime.strftime(datetime.now(),'%Y-%m-%d %H:%M:%S')
+        sql = "UPDATE `CardUsrData` SET `free_draw`=%d, `last_free_draw`='%s'" % (freeDraw, nowStr)
+        cursor.execute(sql)
+        connection.commit()
+
 # 抽卡
 
 
-def drawConsume(usrId, guildId, drawCost=drawCost):
+def drawConsume(usrId, guildId, hasFree=False, drawCost=drawCost):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "UPDATE `CardUsrData` SET `draw_coin`=`draw_coin`-%d WHERE `usr_id` = %d AND `guild_id` = %d" % (
-            drawCost, usrId, guildId)
+        if hasFree:
+            sql = "UPDATE `CardUsrData` SET `free_draw`=`free_draw`-1 WHERE `usr_id` = %d AND `guild_id` = %d" % (usrId, guildId)
+        else:
+            sql = "UPDATE `CardUsrData` SET `draw_coin`=`draw_coin`-%d WHERE `usr_id` = %d AND `guild_id` = %d" % (
+                drawCost, usrId, guildId)
         cursor.execute(sql)
         connection.commit()
 
@@ -163,10 +187,14 @@ def getUsrCardList(usrId, guildId):
 # debug
 
 
-# def test():
+def test():
     # # get coin
     # print(getUsrDrawCoin(405739307517870110, 870855015676391505))
     # # draw
     # print(drawConsume(405739307517870110, 870855015676391505))
     # # after
     # print(getUsrDrawCoin(405739307517870110, 870855015676391505))
+    # getFreeDraw(405739307517870110, 870855015676391505)
+    refreshFreeDraw()
+    
+# test()
