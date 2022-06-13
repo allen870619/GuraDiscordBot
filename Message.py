@@ -377,8 +377,13 @@ async def messageReact(self, client, ctx):
             remainCoin = coin-DrawSQL.drawCost
             remainFree = 0
         await ctx.channel.send('抽卡\~\~\~\~\~')
-        await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」, 剩餘代幣: %d, 免費次數: %d' % (ctx.author.id, card.rarityData.name, card.name, remainCoin, remainFree))
-
+        if card.id == 1:
+            allowed_mentions = discord.AllowedMentions(everyone=True)
+            await ctx.channel.send(content="@everyone 全員注意!!", allowed_mentions=allowed_mentions)
+            await ctx.channel.send('恭喜<@%s> 抽到 鯊魚本人\n%s卡「 *%s* 」!!!!!!' % (ctx.author.id, card.rarityData.name, card.name))
+        else:
+            await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」, 剩餘代幣: %d, 免費次數: %d' % (ctx.author.id, card.rarityData.name, card.name, remainCoin, remainFree))
+            
     # 卡池
     elif msg.lower() == CMD_PF + 'drawpool':
         pool = cardPool()
