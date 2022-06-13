@@ -79,7 +79,6 @@ class MyClient(discord.Client):
 
         # 經驗值系統 (beta)
         if ctx.author.id != 879980183522779137 and ctx.author.id != 950919884802510890:
-            DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id)
             expSys=SQL.queryEnableExpSys(ctx.guild.id)
             if expSys != None and expSys[1] == True:
                 exp=ExpModule.addUsrExp(ctx.author.id, ctx.guild.id)

@@ -359,23 +359,6 @@ async def messageReact(self, client, ctx):
         else:
             await ctx.channel.send("此伺服器尚未啟動經驗系統")
 
-    # stickers
-    elif msg.lower() == 'gcf' and ctx.guild.id == 870855015676391505:
-        await ctx.delete()
-        await ctx.channel.send('<:gura_confuse:922084439733973013>')
-
-    elif msg.lower() == 'gmm' and ctx.guild.id == 870855015676391505:
-        await ctx.delete()
-        await ctx.channel.send('<:gura_meom:922084440178561044>')
-
-    elif msg.lower() == 'gfcn' and ctx.guild.id == 870855015676391505:
-        await ctx.delete()
-        await ctx.channel.send('<:gura_fascinate:922084439822053377>')
-
-    elif msg.lower() == 'ghp' and ctx.guild.id == 870855015676391505:
-        await ctx.delete()
-        await ctx.channel.send('<:gura_happy:922084439717187644>')
-
     # 抽卡機
     # 抽卡
     elif msg.lower() == CMD_PF + 'draw':
@@ -413,29 +396,30 @@ async def messageReact(self, client, ctx):
 
         for i in embedList:
             await ctx.channel.send(embed=i)
-    
-    #代幣餘額
+
+    # 代幣餘額
     elif msg.lower() == CMD_PF + "drawcoin":
         coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
-        await ctx.channel.send("<@%d> 剩餘代幣: %d"%(ctx.author.id, coin))
+        await ctx.channel.send("<@%d> 剩餘代幣: %d" % (ctx.author.id, coin))
 
     # 查詢自己有的卡
     elif msg.lower() == CMD_PF + "mycard":
         list = DrawSQL.getUsrCardList(ctx.author.id, ctx.guild.id)
         if len(list) == 0:
-            await ctx.channel.send("<@%d>卡片空空如也 0.0"%(ctx.author.id))
+            await ctx.channel.send("<@%d>卡片空空如也 0.0" % (ctx.author.id))
             return
-        
-        allData = "<@%d> 持有的卡片\n"%(ctx.author.id)
+
+        allData = "<@%d> 持有的卡片\n" % (ctx.author.id)
         for data in list:
             # form up text
-            allData += "-----%s 卡-----\n" % (data[0]["rarity_name"])    
+            allData += "-----%s 卡-----\n" % (data[0]["rarity_name"])
             for card in data:
-                allData += "%s : %s張\n" % (card["card_name"],
+                allData += "%s. %s : %s張\n" % (card["card_id"],
+                                               card["card_name"],
                                                card["card_mount"])
             allData += "\n"
         await ctx.channel.send(allData)
-        
+
     # help
     elif msg == CMD_PF + '功能' or msg.lower() == CMD_PF + 'func' or msg.lower() == CMD_PF + 'help':
         await showImg(ctx, 'https://c.tenor.com/TgPXdDAfIeIAAAAd/gawr-gura-gura.gif', '#b9d3e9')
@@ -552,6 +536,9 @@ async def messageReact(self, client, ctx):
                 await showImg(ctx, dbUrl[0], dbUrl[1])
             else:
                 await ctx.channel.send(dbUrl[0])
+        else:
+            # 增加代幣
+            DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id)
 
 
 async def memeWarning(self, client, ctx, memo=None):
