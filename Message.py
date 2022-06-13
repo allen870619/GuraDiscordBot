@@ -363,15 +363,21 @@ async def messageReact(self, client, ctx):
     # 抽卡
     elif msg.lower() == CMD_PF + 'draw':
         coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
-        if coin < DrawSQL.drawCost:
+        free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
+        if coin < DrawSQL.drawCost and free == 0:
             await ctx.channel.send("代幣不足 QAQ")
             return
-        DrawSQL.drawConsume(ctx.author.id, ctx.guild.id)
+        hasFree = free > 0
+        DrawSQL.drawConsume(ctx.author.id, ctx.guild.id, hasFree)
         card = drawCard(ctx.author.id, ctx.guild.id)
+        if hasFree:
+            remainCoin = coin
+            remainFree = free - 1
+        else:
+            remainCoin = coin-DrawSQL.drawCost
+            remainFree = 0
         await ctx.channel.send('抽卡\~\~\~\~\~')
-        await ctx.channel.send('.')
-        await ctx.channel.send('.')
-        await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」, 剩餘代幣: %d' % (ctx.author.id, card.rarityData.name, card.name, coin-DrawSQL.drawCost))
+        await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」, 剩餘代幣: %d, 免費次數: %d' % (ctx.author.id, card.rarityData.name, card.name, remainCoin, remainFree))
 
     # 卡池
     elif msg.lower() == CMD_PF + 'drawpool':
@@ -400,7 +406,8 @@ async def messageReact(self, client, ctx):
     # 代幣餘額
     elif msg.lower() == CMD_PF + "drawcoin":
         coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
-        await ctx.channel.send("<@%d> 剩餘代幣: %d" % (ctx.author.id, coin))
+        free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
+        await ctx.channel.send("<@%d> 剩餘代幣: %d, 免費次數: %d" % (ctx.author.id, coin, free))
 
     # 查詢自己有的卡
     elif msg.lower() == CMD_PF + "mycard":

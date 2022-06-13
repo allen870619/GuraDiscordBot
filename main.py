@@ -123,6 +123,7 @@ class MyClient(discord.Client):
             now = datetime.datetime.now()
             if now.strftime("%H:%M") == "08:00":
                 await self.leetSchedule()
+                DrawSQL.refreshFreeDraw()
                 await asyncio.sleep(60 * 60 * 24 - 60) # preserve for 1 mins
             await asyncio.sleep(1)
 
