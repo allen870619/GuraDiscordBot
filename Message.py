@@ -361,28 +361,56 @@ async def messageReact(self, client, ctx):
 
     # 抽卡機
     # 抽卡
-    elif msg.lower() == CMD_PF + 'draw':
+    elif rawMsg[0].lower() == CMD_PF + 'draw':
+        # get desire draw time
+        if len(rawMsg) == 1:
+            times = 1
+        else:
+            try:
+                times = int(rawMsg[1])
+                if times > 10: # max 10 times
+                    times = 10
+            except:
+                times = 1
+        
+        # calculate coins and free                
+        actualDraw = 0
+        containFreeDraw = False
         coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
         free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
-        if coin < DrawSQL.drawCost and free == 0:
+        for _ in range(0, times):
+            if coin < DrawSQL.drawCost and free == 0:
+                break
+            actualDraw += 1
+            hasFree = free > 0
+            if hasFree:
+                containFreeDraw = True
+                free -= 1
+            else:
+                coin -= DrawSQL.drawCost
+            DrawSQL.drawConsume(ctx.author.id, ctx.guild.id, hasFree)
+        
+        # discount when draw 10 cards    
+        if actualDraw == 10 and not containFreeDraw:
+            DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id, 5)
+            
+        # send message
+        if actualDraw > 0:
+            cards = drawCard(ctx.author.id, ctx.guild.id, actualDraw)
+            
+            await ctx.channel.send('抽卡 %d 張\~\~\~\~\~'%(actualDraw))
+            cardAlert = ""
+            for card in cards:
+                if card.id == 1:
+                    allowed_mentions = discord.AllowedMentions(everyone=True)
+                    await ctx.channel.send(content="@everyone 全員注意!!", allowed_mentions=allowed_mentions)
+                    await ctx.channel.send('恭喜<@%s> 抽到 鯊魚本人\n%s卡「 *%s* 」!!!!!!' % (ctx.author.id, card.rarityData.name, card.name))
+                else:
+                    cardAlert += "恭喜<@%s> 抽到 %s卡「 *%s* 」\n" % (ctx.author.id, card.rarityData.name, card.name)
+            if cardAlert != "":
+                await ctx.channel.send(cardAlert)
+        else:
             await ctx.channel.send("代幣不足 QAQ")
-            return
-        hasFree = free > 0
-        DrawSQL.drawConsume(ctx.author.id, ctx.guild.id, hasFree)
-        card = drawCard(ctx.author.id, ctx.guild.id)
-        if hasFree:
-            remainCoin = coin
-            remainFree = free - 1
-        else:
-            remainCoin = coin-DrawSQL.drawCost
-            remainFree = 0
-        await ctx.channel.send('抽卡\~\~\~\~\~')
-        if card.id == 1:
-            allowed_mentions = discord.AllowedMentions(everyone=True)
-            await ctx.channel.send(content="@everyone 全員注意!!", allowed_mentions=allowed_mentions)
-            await ctx.channel.send('恭喜<@%s> 抽到 鯊魚本人\n%s卡「 *%s* 」!!!!!!' % (ctx.author.id, card.rarityData.name, card.name))
-        else:
-            await ctx.channel.send('恭喜<@%s> 抽到 %s卡「 *%s* 」, 剩餘代幣: %d, 免費次數: %d' % (ctx.author.id, card.rarityData.name, card.name, remainCoin, remainFree))
             
     # 卡池
     elif msg.lower() == CMD_PF + 'drawpool':
@@ -493,7 +521,7 @@ async def messageReact(self, client, ctx):
 
         # Draw
         drawCardDesc = '''
-        # %sdraw 抽卡
+        # %sdraw [time=1] 抽卡[次數, 最多10張]
         # %sdrawPool 卡池資訊
         # %sdrawCoin 查詢剩餘代幣
         # %smycard 查詢持有的卡片

@@ -28,12 +28,18 @@ def drawSingleCard(cardList):
     return None
 
 
-def drawCard(usrId, guildId):
-    rarityPart = drawRarity(DrawSQL.queryRarity())
-    card = drawSingleCard(DrawSQL.queryCard(rarityPart))
-    # add to record
-    DrawSQL.addDrawRecord(usrId, guildId, card)
-    return card
+def drawCard(usrId, guildId, time=1):
+    rarityList = DrawSQL.queryRarity()
+    cardDict = {}
+    cards = []
+    for _ in range(0, time):
+        rarityPart = drawRarity(rarityList)
+        if cardDict.get(rarityPart.id) == None:
+            cardDict[rarityPart.id] = DrawSQL.queryCard(rarityPart)
+        card = drawSingleCard(cardDict[rarityPart.id])
+        cards.append(card)
+        DrawSQL.addDrawRecord(usrId, guildId, card)
+    return cards
 
 
 # 卡池
