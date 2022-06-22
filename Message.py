@@ -358,6 +358,10 @@ async def messageReact(self, client, ctx):
             await ctx.channel.send(embed=embed)
         else:
             await ctx.channel.send("此伺服器尚未啟動經驗系統")
+            
+    # repo
+    elif msg.lower() == CMD_PF + 'heart':
+        await ctx.channel.send("幫古拉按個星星吧 <:gura_peek_wall:980739498474348595>\nhttps://github.com/allen870619/GuraDiscordBot")
 
     # 抽卡機
     # 抽卡
@@ -541,7 +545,8 @@ async def messageReact(self, client, ctx):
         # %sayame 百鬼開台計時器
         # %s集合 / %sgather
         # %sexp 查看自己的經驗值
-        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        # %sheart 查看古拉的心臟
+        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
         other = embedCreator(
             title="---其他功能---",
             description=otherDesc,
