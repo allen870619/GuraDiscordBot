@@ -1,3 +1,5 @@
+![Platform](https://img.shields.io/badge/Lang-Python-blue)
+![Date](https://img.shields.io/github/last-commit/allen870619/GuraDiscordBot?style=flat)
 # Gura Discord Bot
 > 可i的Gura
 
