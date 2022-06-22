@@ -31,7 +31,7 @@ python3 main.py
 音樂處理模組, 有Gura鬧鐘 跟 YT音樂播放
 
 ### EnvData
-放Token, 路徑等等重要資料
+放Token, 路徑等等重要資料, 請同時參考.env.example
 
 ### SQLConnect
 連接db的模組
@@ -45,3 +45,6 @@ python3 main.py
 ```
 !help (前綴請根據DB, 預設為!)
 ```
+
+## Database
+需要測試端請來信索取:)
