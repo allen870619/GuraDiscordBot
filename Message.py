@@ -464,6 +464,14 @@ async def messageReact(self, client, ctx):
             allData += "\n"
         await ctx.channel.send(allData)
 
+    # mijian
+    elif msg.lower() == CMD_PF + 'mijian':
+        today = datetime.now()
+        start = datetime.strptime("2022-03-31","%Y-%m-%d")
+        passing = today - start
+        str = "今天是咪醬頻道影片被刪的第%d天，矄宇確定要畢業了，但矄宇還是睡不著覺，心像是被掏空一般。忘了是第幾次，又習慣性打開了YT想找尋咪醬的蹤影，明明知道地，明明知道這是徒勞無功的，但矄宇還是阻止不了他自己。這！是雨嗎？手機螢幕上有了水珠...哈...原來只是矄宇笑嚕~"%(passing.days)
+        await ctx.channel.send(str)
+
     # help
     elif msg == CMD_PF + '功能' or msg.lower() == CMD_PF + 'func' or msg.lower() == CMD_PF + 'help':
         await showImg(ctx, 'https://c.tenor.com/TgPXdDAfIeIAAAAd/gawr-gura-gura.gif', '#b9d3e9')
@@ -545,8 +553,9 @@ async def messageReact(self, client, ctx):
         # %sayame 百鬼開台計時器
         # %s集合 / %sgather
         # %sexp 查看自己的經驗值
+        # %smijian 咪醬刪除紀錄
         # %sheart 查看古拉的心臟
-        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
         other = embedCreator(
             title="---其他功能---",
             description=otherDesc,
