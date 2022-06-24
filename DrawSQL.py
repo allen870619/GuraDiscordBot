@@ -10,11 +10,12 @@ freeDraw = 3
 
 
 class RarityEntity:
-    def __init__(self, id, name, probability) -> None:
+    def __init__(self, id, name, probability, decompose) -> None:
         super().__init__()
         self.id = id
         self.name = name
         self.probability = probability
+        self.decompose = decompose
 
 # 卡片資料包
 
@@ -117,7 +118,7 @@ def queryRarity():
         else:
             list = []
             for i in result:
-                rarity = RarityEntity(i["id"], i["name"], i["probability"])
+                rarity = RarityEntity(i["id"], i["name"], i["probability"], i["decompose"])
                 list.append(rarity)
             return list
 
@@ -184,6 +185,38 @@ def getUsrCardList(usrId, guildId):
             list.append(tmpList.copy())
         return list
 
+# 取得使用者特定卡片數量
+def getUsrCardCount(usrId, guildId, id):
+    connection = connect()
+    with connection.cursor() as cursor:
+        sql = "SELECT card_mount FROM CardUsrProperty WHERE usr_id = %d AND guild_id = %d and card_id = %d" %(usrId, guildId, id)
+        cursor.execute(sql)
+        result = cursor.fetchone()
+        if result == None:
+            return -1
+        else:
+            return result["card_mount"]
+        
+# 分解使用者特定卡片
+def decomposeCard(usrId, guildId, id, num, originCount):
+    connection = connect()
+    with connection.cursor() as cursor:
+        if num >= originCount:
+            num = originCount
+            sql = "DELETE FROM CardUsrProperty WHERE usr_id = %d AND guild_id = %d and card_id = %d" %(usrId, guildId, id)
+        else:
+            sql = "UPDATE CardUsrProperty SET card_mount=card_mount-%d WHERE usr_id = %d AND guild_id = %d and card_id = %d" %(num, usrId, guildId, id)
+        cursor.execute(sql)
+        connection.commit()
+        
+        # 取得卡片價錢
+        sql = "SELECT decompose FROM CardPool LEFT JOIN CardRarity ON CardPool.rarity = CardRarity.id WHERE CardPool.id = %d" %(id)
+        cursor.execute(sql)
+        coin = cursor.fetchone()["decompose"]
+        total = coin * num
+        drawAddCoin(usrId, guildId, total)
+        return (num, total)
+        
 # debug
 
 
@@ -195,6 +228,5 @@ def test():
     # # after
     # print(getUsrDrawCoin(405739307517870110, 870855015676391505))
     # getFreeDraw(405739307517870110, 870855015676391505)
-    refreshFreeDraw()
-    
-# test()
+    # refreshFreeDraw()
+    print(getUsrCardCount(405739307517870110, 870855015676391505, 18))

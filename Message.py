@@ -5,7 +5,7 @@ import MusicModule
 import time
 from datetime import datetime
 # 抽卡
-from DrawCard import drawCard, cardPool
+from DrawCard import drawCard, cardPool, decomposeCard
 import DrawSQL
 # 發圖片請求用
 import requests
@@ -402,7 +402,7 @@ async def messageReact(self, client, ctx):
         if actualDraw > 0:
             cards = drawCard(ctx.author.id, ctx.guild.id, actualDraw)
             
-            await ctx.channel.send('抽卡 %d 張\~\~\~\~\~'%(actualDraw))
+            await ctx.channel.send('抽卡 %d 張   <:gura_fascinate:922084439822053377>'%(actualDraw))
             cardAlert = ""
             for card in cards:
                 if card.id == 1:
@@ -427,10 +427,11 @@ async def messageReact(self, client, ctx):
             cardList = data[1]
 
             # form up text
-            title = "%s 卡池 (%s%%)" % (rarity.name, rarity.probability)
+            title = "%s 卡池 (%s%%)\n分解 %d 金幣" % (rarity.name, rarity.probability, rarity.decompose)
             strCardList = ""
             for card in cardList:
-                strCardList += "%s \n -> %s%%\n" % (card.name,
+                strCardList += "%d. %s \n -> %s%%\n" % (card.id,
+                                                    card.name,
                                                     card.probability)
 
             embedList.append(embedCreator(
@@ -463,6 +464,32 @@ async def messageReact(self, client, ctx):
                                                card["card_mount"])
             allData += "\n"
         await ctx.channel.send(allData)
+        
+    # 分解卡片
+    elif rawMsg[0].lower() == CMD_PF + "decomp":
+        if len(rawMsg) == 3:
+            try:
+                id = int(rawMsg[1])
+                count = int(rawMsg[2])
+                isPass = True
+            except e:
+                isPass = False
+        elif len(rawMsg) == 2:
+            try:
+                id = int(rawMsg[1])
+                count = 1
+                isPass = True
+            except e:
+                isPass = False
+        else:
+            await ctx.channel.send("指令錯誤 <:gura_angry:922084439813673001>")
+            isPass = False
+        if isPass:
+            result = decomposeCard(ctx.author.id, ctx.guild.id, id, count)
+            if result == None:
+                await ctx.channel.send("你沒有這張卡 <:gura_cry:922084439465553920>")
+            else:
+                await ctx.channel.send("<@%d> 分解%d張卡, 獲得%d枚金幣"%(ctx.author.id, result[0], result[1]))
 
     # mijian
     elif msg.lower() == CMD_PF + 'mijian':
@@ -537,7 +564,8 @@ async def messageReact(self, client, ctx):
         # %sdrawPool 卡池資訊
         # %sdrawCoin 查詢剩餘代幣
         # %smycard 查詢持有的卡片
-        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        # %sdecomp <id> [count=1] 分解持有的卡片
+        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
         drawCardHint = embedCreator(
             title="---血統認證機(開發中)---",
             description=drawCardDesc,

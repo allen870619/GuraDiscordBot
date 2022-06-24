@@ -50,11 +50,21 @@ def cardPool():
         list.append((rarity, DrawSQL.queryCard(rarity)))
     return list
 
+# 分解卡片
+def decomposeCard(usrId, guildId, id, num):
+    count = DrawSQL.getUsrCardCount(usrId, guildId, id)
+    if count == -1:
+        return None
+    else:
+        result = DrawSQL.decomposeCard(usrId, guildId, id, num, count)
+        return result
+    
 
 # debug
 def test():
-    a = DrawSQL.queryRarity()
-    for i in range(0, 500):
-        rarityPart = drawRarity(a)
-        card = drawSingleCard(DrawSQL.queryCard(rarityPart))
-        print("%s卡 ! 恭喜你抽到 *%s*" % (card.rarityData.name, card.name))
+    # a = DrawSQL.queryRarity()
+    # for i in range(0, 500):
+    #     rarityPart = drawRarity(a)
+    #     card = drawSingleCard(DrawSQL.queryCard(rarityPart))
+    #     print("%s卡 ! 恭喜你抽到 *%s*" % (card.rarityData.name, card.name))
+    print(decomposeCard(405739307517870110, 870855015676391505, 18, 5))
