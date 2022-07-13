@@ -1,4 +1,5 @@
 import psutil
+import numpy as np
 import datetime
 import time
 import math
@@ -50,13 +51,13 @@ def getComputerInfo():
     return data
 
 def getAllInfo():
-    usage = getCpuUsage()
-    temp = getCpuTemp()
-    freq = getCpuFreq(0)
-    memUsage = getMemUsage()
     uptime = getUptime().seconds
-    d = getUptime().days
-    h = uptime / 3600
-    m = (uptime % 3600) / 60
-    s = uptime % 60
-    return "Cpu使用率: %.1f %%\nCpu 溫度:  %.1f ºC\nCpu頻率:   %d Mhz\nRAM使用率: %.1f %%\n開機時間:  %d天 %d小時 %d分 %d秒"%(usage, temp, freq, memUsage,d ,h ,m, s)
+    hr = int(uptime / 3600)
+    min = int((uptime % 3600) / 60)
+    sec = uptime % 60
+    msg = f"CPU 使用率: {np.round(getCpuUsage(), 1)}%\n"
+    msg += f"CPU 溫度: {np.round(getCpuTemp(), 1)} ºC\n"
+    msg += f"CPU 頻率: {int(getCpuFreq(0))} Mhz\n"
+    msg += f"RAM 使用率: {np.round(getMemUsage(), 1)}%\n"
+    msg += f"開機時間:  {getUptime().days}天 {hr}小時 {min}分 {sec}秒"
+    return msg
