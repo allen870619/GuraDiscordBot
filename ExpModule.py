@@ -2,7 +2,7 @@ import SQLConnect as SQL
 
 def addUsrExp(usrId, guildId):
     exp = SQL.queryUsrExp(usrId, guildId)
-    if exp == None:
+    if exp is None:
         # append new user
         SQL.addExpUsr(usrId, guildId)
         exp = SQL.queryUsrExp(usrId, guildId)

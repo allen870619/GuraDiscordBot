@@ -113,7 +113,7 @@ class MyClient(discord.Client):
 
     # voice
     async def on_voice_state_update(self, member, _, after):
-        if member == self.user and after.channel == None:
+        if member == self.user and after.channel is None:
             await MusicModule.leaving(None)
 
     # leet schedule

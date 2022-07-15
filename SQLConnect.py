@@ -37,7 +37,7 @@ def queryPrefixURL(channel):
         sql = "SELECT `prefix` FROM ServerCmdPrefix WHERE `server_id` = %s"
         cursor.execute(sql, channel)
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
             return ""
         else:
             return result["prefix"]
@@ -49,7 +49,7 @@ def queryUser(callName):
         sql = "SELECT `id`, `message`, `image_url`, `color` FROM User NATURAL JOIN Caller WHERE `call_name` = %s"
         cursor.execute(sql, callName)
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
             return ""
         else:
             return (result["id"], result["message"], result["image_url"], result["color"])
@@ -61,7 +61,7 @@ def queryAlarmUrl(callCmd):
         sql = "SELECT `path` FROM AlarmSrc WHERE `call_cmd` = %s"
         cursor.execute(sql, callCmd)
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
             return ""
         else:
             return (result["path"])
@@ -71,7 +71,7 @@ def queryLeetChn(guild=None):
     connection = connect()
     with connection:
         with connection.cursor() as cursor:
-            if guild == None:
+            if guild is None:
                 sql = "SELECT `chn_id` FROM LeetBroadcast WHERE `enable` is True"
                 cursor.execute(sql)
             else:
@@ -103,7 +103,7 @@ def queryScriptPath(cmd):
         sql = "SELECT path FROM ScriptTable WHERE `cmd` = %s"
         cursor.execute(sql, cmd)   
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
                 return None
         else:
             return (result["path"])
@@ -115,7 +115,7 @@ def queryEnableExpSys(guildId):
         sql = "SELECT `brodcast_chn`, `is_avbl` FROM ExpSystem WHERE `guild_id` = %s" %(guildId)
         cursor.execute(sql)
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
                 return None
         else:
             return (result["brodcast_chn"], result["is_avbl"])
@@ -126,7 +126,7 @@ def queryUsrExp(usrId, guildId):
         sql = "SELECT `max`, `level`, `exp` FROM ExpUsrTable NATURAL JOIN ExpLevel WHERE `usr_id` = %s AND `guild_id` = %s"
         cursor.execute(sql, (usrId, guildId))
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
                 return None
         else:
             return (result["exp"], result["max"], result["level"])

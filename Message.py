@@ -95,7 +95,7 @@ async def messageReact(self, client, ctx):
     elif msg.lower() == CMD_PF+"play" or msg.lower() == CMD_PF+"p":
         try:
             # initial
-            if MusicModule.vc == None:
+            if MusicModule.vc is None:
                 await MusicModule.joining(ctx)
 
             # play
@@ -120,6 +120,7 @@ async def messageReact(self, client, ctx):
                 MusicModule.vc.pause()
         except:
             log("Nothing to pause")
+            pass
 
     elif msg.lower() == CMD_PF+"next":
         try:
@@ -128,6 +129,7 @@ async def messageReact(self, client, ctx):
                 MusicModule.is_playing = False
         except:
             log("Nothing to next")
+            pass
 
     elif msg.lower() == CMD_PF+"stop":
         try:
@@ -137,6 +139,7 @@ async def messageReact(self, client, ctx):
                 MusicModule.is_playing = False
         except:
             log("Nothing to stop")
+            pass
 
     elif msg.lower() == CMD_PF+"list":
         if len(rawMsg) == 1:
@@ -219,6 +222,7 @@ async def messageReact(self, client, ctx):
                 await ctx.channel.send('出現異常錯誤啦~~')
         except:
             await ctx.channel.send('我猜你是想要查詢geek的資訊，請輸入 geek 1\n 1：技術直播資訊 2：今日推薦～')
+            pass
 
     # gifs
     elif (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
@@ -376,6 +380,7 @@ async def messageReact(self, client, ctx):
                     times = 10
             except:
                 times = 1
+                pass
         
         # calculate coins and free                
         actualDraw = 0
@@ -486,7 +491,7 @@ async def messageReact(self, client, ctx):
             isPass = False
         if isPass:
             result = decomposeCard(ctx.author.id, ctx.guild.id, id, count)
-            if result == None:
+            if result is None:
                 await ctx.channel.send("你沒有這張卡 <:gura_cry:922084439465553920>")
             else:
                 await ctx.channel.send("<@%d> 分解%d張卡, 獲得%d枚金幣"%(ctx.author.id, result[0], result[1]))
@@ -627,7 +632,7 @@ async def memeWarning(self, client, ctx, memo=None):
     if ctx.author == self.user:
         return
     chn = client.get_channel(929379945346629642)
-    if memo == None or memo == '':
+    if memo is None or memo == '':
         await chn.send('<@%s> 不要在梗圖版打字 <:gura_angry:922084439813673001>' % (ctx.author.id))
     else:
         await chn.send('<@%s> %s' % (ctx.author.id, memo))

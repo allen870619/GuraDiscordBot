@@ -40,7 +40,7 @@ def getUsrDrawCoin(usrId, guildId):
             usrId, guildId)
         cursor.execute(sql)
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
             # 初始化資料
             sql = "SELECT `exp` FROM `ExpUsrTable` WHERE `usr_id`=%s AND `guild_id`=%s" % (
                 usrId, guildId)
@@ -193,7 +193,7 @@ def getUsrCardCount(usrId, guildId, id):
         sql = "SELECT card_mount FROM CardUsrProperty WHERE usr_id = %d AND guild_id = %d and card_id = %d" %(usrId, guildId, id)
         cursor.execute(sql)
         result = cursor.fetchone()
-        if result == None:
+        if result is None:
             return -1
         else:
             return result["card_mount"]
