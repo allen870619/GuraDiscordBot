@@ -138,7 +138,8 @@ def queryCard(rarityData):
             for i in result:
                 card = CardEntity(i["id"], i["name"],
                                   i["probability"], rarityData)
-                list.append(card)
+                if card.probability != 0:
+                    list.append(card)
             return list
 
 # 新增抽卡資料到紀錄中

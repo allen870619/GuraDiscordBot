@@ -12,64 +12,59 @@ def connect():
 
 def queryUrl(cmd=None):
     connection = connect()
-    with connection:
-        with connection.cursor() as cursor:
-            if cmd != None:
-                sql = "SELECT * FROM PicCmd WHERE `cmd` = %s"
-                cursor.execute(sql, cmd)
-            else:
-                sql = "SELECT * FROM PicCmd WHERE `show_in_help` = 1 ORDER BY `cmd` asc"
-                cursor.execute(sql, cmd)
-            result = cursor.fetchall()
-            if len(result) == 0:
-                return ""
-            else:
-                if cmd == None:
-                    list = []
-                    for i in result:
-                        list.append(i["cmd"])
-                    return (list)
-                else:
-                    return (result[0]["url"], result[0]["color"], result[0]["need_delete"], result[0]["need_embed"])
+    with connection.cursor() as cursor:
+        if cmd != None:
+            sql = "SELECT * FROM PicCmd WHERE `cmd` = %s"
+            cursor.execute(sql, cmd)
+        else:
+            sql = "SELECT * FROM PicCmd WHERE `show_in_help` = 1 ORDER BY `cmd` asc"
+            cursor.execute(sql, cmd)
+        result = cursor.fetchall()
+        if len(result) == 0:
+            return ""
+        elif cmd == None:
+            list = []
+            for i in result:
+                list.append(i["cmd"])
+            return (list)
+        else:
+            return (result[0]["url"], result[0]["color"], result[0]["need_delete"], result[0]["need_embed"])
 
 
 def queryPrefixURL(channel):
     connection = connect()
-    with connection:
-        with connection.cursor() as cursor:
-            sql = "SELECT `prefix` FROM ServerCmdPrefix WHERE `server_id` = %s"
-            cursor.execute(sql, channel)
-            result = cursor.fetchone()
-            if result == None:
-                return ""
-            else:
-                return result["prefix"]
+    with connection.cursor() as cursor:
+        sql = "SELECT `prefix` FROM ServerCmdPrefix WHERE `server_id` = %s"
+        cursor.execute(sql, channel)
+        result = cursor.fetchone()
+        if result == None:
+            return ""
+        else:
+            return result["prefix"]
 
 
 def queryUser(callName):
     connection = connect()
-    with connection:
-        with connection.cursor() as cursor:
-            sql = "SELECT `id`, `message`, `image_url`, `color` FROM User NATURAL JOIN Caller WHERE `call_name` = %s"
-            cursor.execute(sql, callName)
-            result = cursor.fetchone()
-            if result == None:
-                return ""
-            else:
-                return (result["id"], result["message"], result["image_url"], result["color"])
+    with connection.cursor() as cursor:
+        sql = "SELECT `id`, `message`, `image_url`, `color` FROM User NATURAL JOIN Caller WHERE `call_name` = %s"
+        cursor.execute(sql, callName)
+        result = cursor.fetchone()
+        if result == None:
+            return ""
+        else:
+            return (result["id"], result["message"], result["image_url"], result["color"])
 
 
 def queryAlarmUrl(callCmd):
     connection = connect()
-    with connection:
-        with connection.cursor() as cursor:
-            sql = "SELECT `path` FROM AlarmSrc WHERE `call_cmd` = %s"
-            cursor.execute(sql, callCmd)
-            result = cursor.fetchone()
-            if result == None:
-                return ""
-            else:
-                return (result["path"])
+    with connection.cursor() as cursor:
+        sql = "SELECT `path` FROM AlarmSrc WHERE `call_cmd` = %s"
+        cursor.execute(sql, callCmd)
+        result = cursor.fetchone()
+        if result == None:
+            return ""
+        else:
+            return (result["path"])
 
 
 def queryLeetChn(guild=None):
