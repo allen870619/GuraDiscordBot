@@ -22,13 +22,13 @@ def queryUrl(cmd=None):
         result = cursor.fetchall()
         if len(result) == 0:
             return ""
-        elif cmd == None:
-            list = []
-            for i in result:
-                list.append(i["cmd"])
-            return (list)
-        else:
+        elif cmd != None:
             return (result[0]["url"], result[0]["color"], result[0]["need_delete"], result[0]["need_embed"])
+        # query all for help
+        list = []
+        for i in result:
+            list.append(i["cmd"])
+        return (list)
 
 
 def queryPrefixURL(channel):
