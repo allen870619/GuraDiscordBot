@@ -1,6 +1,8 @@
 ![Platform](https://img.shields.io/badge/Lang-Python-blue)
 ![Date](https://img.shields.io/github/last-commit/allen870619/GuraDiscordBot?style=flat)
 [![codebeat badge](https://codebeat.co/badges/b77129ab-62e5-487e-9b06-373bed6c0d30)](https://codebeat.co/projects/github-com-allen870619-guradiscordbot-main)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/allen870619/GuraDiscordBot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/allen870619/GuraDiscordBot/context:python)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/allen870619/GuraDiscordBot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/allen870619/GuraDiscordBot/alerts/)
 # Gura Discord Bot
 > 可i的Gura
 
