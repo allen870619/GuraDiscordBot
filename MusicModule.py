@@ -30,12 +30,12 @@ async def joining(ctx):
 async def leaving(ctx):
     global vc, is_playing
     # call by voice status changed
-    if ctx == None: 
+    if ctx is None: 
         vc = None
         is_playing = False
         return
 
-    if vc == None:
+    if vc is None:
         await joining(ctx)
            
     # stop playing first

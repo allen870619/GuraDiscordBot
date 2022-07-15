@@ -34,7 +34,7 @@ def drawCard(usrId, guildId, time):
     cards = []
     for _ in range(0, time):
         rarityPart = drawRarity(rarityList)
-        if cardDict.get(rarityPart.id) == None:
+        if cardDict.get(rarityPart.id) is None:
             cardDict[rarityPart.id] = DrawSQL.queryCard(rarityPart)
         cards.append(drawSingleCard(cardDict[rarityPart.id]))
         DrawSQL.addDrawRecord(usrId, guildId, cards[-1])
