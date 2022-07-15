@@ -414,7 +414,7 @@ async def messageReact(self, client, ctx):
             if cardAlert != "":
                 await ctx.channel.send(cardAlert)
         else:
-            await ctx.channel.send("代幣不足 QAQ")
+            await ctx.channel.send("代幣不足 <:gura_cry:922084439465553920>")
             
     # 卡池
     elif msg.lower() == CMD_PF + 'drawpool':
