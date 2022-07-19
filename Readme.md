@@ -18,6 +18,10 @@
 * youtube-dl
 * psutil
 
+\* 安裝
+```
+pip install -r requirments.txt
+```
 
 ## 架構說明
 ### Main
