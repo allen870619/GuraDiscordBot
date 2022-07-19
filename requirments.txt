@@ -1,0 +1,7 @@
+discord.py
+requests
+python-dotenv
+youtube-dl
+pymysql
+psutil
+numpy
