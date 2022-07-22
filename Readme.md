@@ -3,6 +3,7 @@
 [![codebeat badge](https://codebeat.co/badges/b77129ab-62e5-487e-9b06-373bed6c0d30)](https://codebeat.co/projects/github-com-allen870619-guradiscordbot-main)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/allen870619/GuraDiscordBot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/allen870619/GuraDiscordBot/context:python)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/allen870619/GuraDiscordBot.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/allen870619/GuraDiscordBot/alerts/)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=allen870619_GuraDiscordBot&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=allen870619_GuraDiscordBot)
 # Gura Discord Bot
 > 可i的Gura
 
