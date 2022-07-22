@@ -118,18 +118,16 @@ async def messageReact(self, client, ctx):
         try:
             if MusicModule.is_playing:
                 MusicModule.vc.pause()
-        except:
+        except Exception:
             log("Nothing to pause")
-            pass
 
     elif msg.lower() == CMD_PF+"next":
         try:
             if MusicModule.is_playing:
                 MusicModule.vc.stop()
                 MusicModule.is_playing = False
-        except:
+        except Exception:
             log("Nothing to next")
-            pass
 
     elif msg.lower() == CMD_PF+"stop":
         try:
@@ -137,9 +135,8 @@ async def messageReact(self, client, ctx):
                 MusicModule.clearPlaylist()
                 MusicModule.vc.stop()
                 MusicModule.is_playing = False
-        except:
+        except Exception:
             log("Nothing to stop")
-            pass
 
     elif msg.lower() == CMD_PF+"list":
         if len(rawMsg) == 1:
@@ -220,9 +217,8 @@ async def messageReact(self, client, ctx):
                     log(e)
             else:
                 await ctx.channel.send('出現異常錯誤啦~~')
-        except:
+        except Exception:
             await ctx.channel.send('我猜你是想要查詢geek的資訊，請輸入 geek 1\n 1：技術直播資訊 2：今日推薦～')
-            pass
 
     # gifs
     elif (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
@@ -378,9 +374,8 @@ async def messageReact(self, client, ctx):
                 times = int(rawMsg[1])
                 if times > 10: # max 10 times
                     times = 10
-            except:
+            except Exception:
                 times = 1
-                pass
         
         # calculate coins and free                
         actualDraw = 0
