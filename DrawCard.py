@@ -1,4 +1,4 @@
-import random
+import secrets
 import DrawSQL
 # 全部都用1/10000計算
 
@@ -7,7 +7,7 @@ import DrawSQL
 
 
 def drawRarity(rarityList):
-    value = random.randint(1, 10000)
+    value = secrets.randbelow(9999)+1
     sumRary = 0
     for rarity in rarityList:
         sumRary += rarity.probability * 100
@@ -19,7 +19,7 @@ def drawRarity(rarityList):
 
 
 def drawSingleCard(cardList):
-    value = random.randint(1, 10000)
+    value = secrets.randbelow(9999)+1
     sumRary = 0
     for card in cardList:
         sumRary += card.probability * 100
