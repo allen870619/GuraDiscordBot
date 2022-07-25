@@ -6,6 +6,7 @@ import MusicModule
 import LeetcodeCrawler as LCC
 import asyncio
 from EnvData import TOKEN
+from PoisonSoup import getPoisonSoup
 from Utils import log
 import SQLConnect as SQL
 import DrawSQL
@@ -123,6 +124,7 @@ class MyClient(discord.Client):
             now = datetime.datetime.now()
             if now.strftime("%H:%M") == "08:00":
                 await self.leetSchedule()
+                await self.poisonSoup()
                 DrawSQL.refreshFreeDraw()
                 await asyncio.sleep(60 * 60 * 24 - 60) # preserve for 1 mins
             await asyncio.sleep(1)
@@ -132,8 +134,14 @@ class MyClient(discord.Client):
         list = SQL.queryLeetChn()
         for i in list:
             chn = client.get_channel(int(i))
-            if  chn != None:
+            if chn != None:
                 await chn.send(toSend)
+    
+    async def poisonSoup(self):
+        soup = f"---本日毒雞湯---\n{getPoisonSoup()}\n\n共勉之"
+        chn = client.get_channel(929379945346629642)
+        if chn != None:
+            await chn.send(soup)
             
 client = MyClient(intents=intents)
 client.run(TOKEN)
