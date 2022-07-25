@@ -14,6 +14,8 @@ from RequestSetting import *
 import SQLConnect as SQL
 from Utils import log, colorToHex
 from PsutilSensor import getAllInfo
+# 雞湯
+from PoisonSoup import getPoisonSoup
 
 # utils
 # getting img
@@ -337,6 +339,18 @@ async def messageReact(self, client, ctx):
             if res[2] != "":
                 await showImg(ctx, res[2], res[3])
 
+    # poison soup
+    elif msg.lower() == CMD_PF + 'poison':
+        if len(rawMsg) == 2:
+            try:
+                cmd = int(rawMsg[1])
+                soup = getPoisonSoup(cmd)
+            except Exception:
+                soup = getPoisonSoup()
+        else:
+            soup = getPoisonSoup()
+        await ctx.channel.send(soup)
+        
     # change name
     elif msg.lower() == CMD_PF + 'editname':
         data = origin.split(" ", 2)
@@ -531,10 +545,10 @@ async def messageReact(self, client, ctx):
         )
 
         # leetcode
-        leetcodeDesc = '''
-        # %sleet [ac] 每日題目 / 通過率
-        # %sleetrand 隨機題目
-        ''' % (CMD_PF, CMD_PF)
+        leetcodeDesc = f'''
+        # {CMD_PF}leet [ac] 每日題目 / 通過率
+        # {CMD_PF}leetrand 隨機題目
+        '''
         leetcode = embedCreator(
             title="---Leetcode功能---",
             description=leetcodeDesc,
@@ -542,16 +556,16 @@ async def messageReact(self, client, ctx):
         )
 
         # Music
-        musicDesc = '''
-        # %sjoin / %skick 
+        musicDesc = f'''
+        # {CMD_PF}join / {CMD_PF}kick 
         -呼叫/趕走唱歌的鯊鯊(請在語音頻道使用)
-        # %splay [1, 2, 3, 4, <url>] 
+        # {CMD_PF}play [1, 2, 3, 4, <url>] 
         -鯊鯊語音(1,2,3,4為鬧鐘, 預設4)/恢復暫停播放
-        # %spause -暫停
-        # %sstop -停止(清單會被清除)
-        # %snext -清單下一首
-        # %slist [clear] -清單/清單清除
-        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        # {CMD_PF}pause -暫停
+        # {CMD_PF}stop -停止(清單會被清除)
+        # {CMD_PF}next -清單下一首
+        # {CMD_PF}list [clear] -清單/清單清除
+        '''
         music = embedCreator(
             title="---鯊魚廣播---",
             description=musicDesc,
@@ -559,13 +573,13 @@ async def messageReact(self, client, ctx):
         )
 
         # Draw
-        drawCardDesc = '''
-        # %sdraw [time=1] 抽卡[次數, 最多10張]
-        # %sdrawPool 卡池資訊
-        # %sdrawCoin 查詢剩餘代幣
-        # %smycard 查詢持有的卡片
-        # %sdecomp <id> [count=1] 分解持有的卡片
-        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        drawCardDesc = f'''
+        # {CMD_PF}draw [time=1] 抽卡[次數, 最多10張]
+        # {CMD_PF}drawPool 卡池資訊
+        # {CMD_PF}drawCoin 查詢剩餘代幣
+        # {CMD_PF}mycard 查詢持有的卡片
+        # {CMD_PF}decomp <id> [count=1] 分解持有的卡片
+        '''
         drawCardHint = embedCreator(
             title="---血統認證機(開發中)---",
             description=drawCardDesc,
@@ -573,17 +587,18 @@ async def messageReact(self, client, ctx):
         )
 
         # Others
-        otherDesc = '''
-        # %sstatus 主機狀態
-        # %scs [state] 變更鯊魚狀態
-        # %seditName <tag user> <nickname> 變更暱稱
-        # %sgetoff 下班倒數計時
-        # %sayame 百鬼開台計時器
-        # %s集合 / %sgather
-        # %sexp 查看自己的經驗值
-        # %smijian 咪醬刪除紀錄
-        # %sheart 查看古拉的心臟
-        ''' % (CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF, CMD_PF)
+        otherDesc = f'''
+        # {CMD_PF}status 主機狀態
+        # {CMD_PF}cs [state] 變更鯊魚狀態
+        # {CMD_PF}editName <tag user> <nickname> 變更暱稱
+        # {CMD_PF}getoff 下班倒數計時
+        # {CMD_PF}ayame 百鬼開台計時器
+        # {CMD_PF}poison [mode: 0雞湯, 1舔狗日記, 2社會語錄] 心靈毒雞湯
+        # {CMD_PF}集合 / {CMD_PF}gather
+        # {CMD_PF}exp 查看自己的經驗值
+        # {CMD_PF}mijian 咪醬刪除紀錄
+        # {CMD_PF}heart 查看古拉的心臟
+        '''
         other = embedCreator(
             title="---其他功能---",
             description=otherDesc,

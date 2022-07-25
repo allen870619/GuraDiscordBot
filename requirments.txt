@@ -5,3 +5,4 @@ youtube-dl
 pymysql
 psutil
 numpy
+opencc-python-reimplemented
