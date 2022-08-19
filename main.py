@@ -70,8 +70,6 @@ class MyClient(discord.Client):
     async def on_message(self, ctx):
         # log
         self.msgLog(ctx)
-        print(ctx)
-        print(ctx.content)
 
         # filter
         # 梗圖過濾
