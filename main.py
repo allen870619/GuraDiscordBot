@@ -12,9 +12,6 @@ import SQLConnect as SQL
 import DrawSQL
 import ExpModule
 
-intents = discord.Intents.default()
-intents.members = True
-intents.guilds = True
 class MyClient(discord.Client):
     # message log to console
     def msgLog(self, ctx, isEdited=False):
@@ -142,6 +139,11 @@ class MyClient(discord.Client):
         chn = client.get_channel(929379945346629642)
         if chn != None:
             await chn.send(soup)
-            
+
+# start client here
+intents = discord.Intents.default()
+intents.members = True
+intents.guilds = True            
+intents.message_content = True
 client = MyClient(intents=intents)
 client.run(TOKEN)
