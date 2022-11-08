@@ -1,6 +1,7 @@
 import pymysql.cursors
 from EnvData import DB_URL, DB_USR, DB_PW, DB_DATABASE
 
+
 def connect():
     return pymysql.connect(host=DB_URL,
                            user=DB_USR,
@@ -83,11 +84,12 @@ def queryLeetChn(guild=None):
                 list.append(i["chn_id"])
             return list
 
+
 def queryProxyChat(cmd):
     connection = connect()
     with connection.cursor() as cursor:
         sql = "SELECT chn_id FROM ProxyChat WHERE `cmd` = %s"
-        cursor.execute(sql, cmd)   
+        cursor.execute(sql, cmd)
         result = cursor.fetchall()
         if len(result) == 0:
             return []
@@ -97,28 +99,33 @@ def queryProxyChat(cmd):
                 list.append(int(i["chn_id"]))
             return (list)
 
+
 def queryScriptPath(cmd):
     connection = connect()
     with connection.cursor() as cursor:
         sql = "SELECT path FROM ScriptTable WHERE `cmd` = %s"
-        cursor.execute(sql, cmd)   
+        cursor.execute(sql, cmd)
         result = cursor.fetchone()
         if result is None:
-                return None
+            return None
         else:
             return (result["path"])
 
 # Exp System
+
+
 def queryEnableExpSys(guildId):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "SELECT `brodcast_chn`, `is_avbl` FROM ExpSystem WHERE `guild_id` = %s" %(guildId)
+        sql = "SELECT `brodcast_chn`, `is_avbl` FROM ExpSystem WHERE `guild_id` = %s" % (
+            guildId)
         cursor.execute(sql)
         result = cursor.fetchone()
         if result is None:
-                return None
+            return None
         else:
             return (result["brodcast_chn"], result["is_avbl"])
+
 
 def queryUsrExp(usrId, guildId):
     connection = connect()
@@ -127,28 +134,67 @@ def queryUsrExp(usrId, guildId):
         cursor.execute(sql, (usrId, guildId))
         result = cursor.fetchone()
         if result is None:
-                return None
+            return None
         else:
             return (result["exp"], result["max"], result["level"])
+
 
 def addExpUsr(usrId, guildId):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "INSERT INTO `ExpUsrTable` (`usr_id`, `guild_id`) VALUES (%d, %d)" %(usrId, guildId)
+        sql = "INSERT INTO `ExpUsrTable` (`usr_id`, `guild_id`) VALUES (%d, %d)" % (
+            usrId, guildId)
         cursor.execute(sql)
         connection.commit()
+
 
 def increaseUsrExp(usrId, guildId, value=1):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "UPDATE ExpUsrTable SET `exp`=`exp`+%d WHERE `usr_id` = %d AND `guild_id` = %d" %(value, usrId, guildId)
+        sql = "UPDATE ExpUsrTable SET `exp`=`exp`+%d WHERE `usr_id` = %d AND `guild_id` = %d" % (
+            value, usrId, guildId)
         cursor.execute(sql)
         connection.commit()
+
 
 def upgradeUsrLv(usrId, guildId):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "UPDATE ExpUsrTable SET `level`=`level`+1 WHERE `usr_id` = %d AND `guild_id` = %d" %(usrId, guildId)
+        sql = "UPDATE ExpUsrTable SET `level`=`level`+1 WHERE `usr_id` = %d AND `guild_id` = %d" % (
+            usrId, guildId)
         cursor.execute(sql)
         connection.commit()
 
+
+def queryThxHf(usrId, guildId, channelId=None):
+    connection = connect()
+    with connection.cursor() as cursor:
+        if channelId is None:
+            sql = "SELECT SUM(count) FROM `HfCounter` WHERE `usr_id` = %s AND `guild_id` = %s"
+            cursor.execute(sql, (usrId, guildId))
+        else:
+            sql = "SELECT SUM(count) FROM `HfCounter` WHERE `usr_id` = %s AND `guild_id` = %s AND `channel_id` = %s"
+            cursor.execute(sql, (usrId, guildId, channelId))
+        result = cursor.fetchone()
+        if len(result) == 0:
+            return -1
+        else:
+            return result["SUM(count)"]
+
+
+def increaseThxHf(usrId, guildId, channelId, value=1):
+    connection = connect()
+    with connection.cursor() as cursor:
+        sql = "SELECT COUNT(*) FROM `HfCounter` WHERE `usr_id` = %d AND `guild_id` = %d AND `channel_id` = %d" % (
+            usrId, guildId, channelId)
+        cursor.execute(sql)
+        result = cursor.fetchone()
+        if result["COUNT(*)"] == 0:
+            sql = "INSERT INTO `HfCounter` (`usr_id`, `guild_id`, `channel_id`, `count`) VALUES (%s, %s, %s, %d)" % (
+                usrId, guildId, channelId, value)
+            cursor.execute(sql)
+        else:
+            sql = "UPDATE HfCounter SET `count`=`count`+%d WHERE `usr_id` = %d AND `guild_id` = %d AND `channel_id` = %d" % (
+                value, usrId, guildId, channelId)
+            cursor.execute(sql)
+        connection.commit()
