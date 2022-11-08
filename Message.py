@@ -192,7 +192,7 @@ async def messageReact(self, client, ctx):
                         dbUrl[0], json={'page': 'pc_home'}, headers=ressetting.getHeaders(), timeout=10).json()
 
                     # Response List: 8：直播（對應指令1） 1：小編推薦（對應指令2）
-                    if(rawMsg[1] == '1'):
+                    if (rawMsg[1] == '1'):
                         await ctx.channel.send('😎未來幾天的技術直播資訊')
                         await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
                         for list in response['data']['list'][8]['list']:
@@ -202,7 +202,7 @@ async def messageReact(self, client, ctx):
                                 '連結：' + str(list['live_url']) + '\n'
                             )
                             await showImg(ctx, list['cover'])
-                    elif(rawMsg[1] == '2'):
+                    elif (rawMsg[1] == '2'):
                         await ctx.channel.send('😏今日推薦')
                         await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
                         for list in response['data']['list'][1]['list']:
@@ -350,7 +350,7 @@ async def messageReact(self, client, ctx):
         else:
             soup = getPoisonSoup()
         await ctx.channel.send(soup)
-        
+
     # change name
     elif msg.lower() == CMD_PF + 'editname':
         data = origin.split(" ", 2)
@@ -372,7 +372,7 @@ async def messageReact(self, client, ctx):
             await ctx.channel.send(embed=embed)
         else:
             await ctx.channel.send("此伺服器尚未啟動經驗系統")
-            
+
     # repo
     elif msg.lower() == CMD_PF + 'heart':
         await ctx.channel.send("幫古拉按個星星吧 <:gura_peek_wall:980739498474348595>\nhttps://github.com/allen870619/GuraDiscordBot")
@@ -386,12 +386,12 @@ async def messageReact(self, client, ctx):
         else:
             try:
                 times = int(rawMsg[1])
-                if times > 10: # max 10 times
+                if times > 10:  # max 10 times
                     times = 10
             except Exception:
                 times = 1
-        
-        # calculate coins and free                
+
+        # calculate coins and free
         actualDraw = 0
         containFreeDraw = False
         coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
@@ -407,16 +407,16 @@ async def messageReact(self, client, ctx):
             else:
                 coin -= DrawSQL.drawCost
             DrawSQL.drawConsume(ctx.author.id, ctx.guild.id, hasFree)
-        
-        # discount when draw 10 cards    
+
+        # discount when draw 10 cards
         if actualDraw == 10 and not containFreeDraw:
             DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id, 5)
-            
+
         # send message
         if actualDraw > 0:
             cards = drawCard(ctx.author.id, ctx.guild.id, actualDraw)
-            
-            await ctx.channel.send('抽卡 %d 張   <:gura_fascinate:922084439822053377>'%(actualDraw))
+
+            await ctx.channel.send('抽卡 %d 張   <:gura_fascinate:922084439822053377>' % (actualDraw))
             cardAlert = ""
             for card in cards:
                 if card.id == 1:
@@ -424,12 +424,13 @@ async def messageReact(self, client, ctx):
                     await ctx.channel.send(content="@everyone 全員注意!!", allowed_mentions=allowed_mentions)
                     await ctx.channel.send('恭喜<@%s> 抽到 鯊魚本人\n%s卡「 *%s* 」!!!!!!' % (ctx.author.id, card.rarityData.name, card.name))
                 else:
-                    cardAlert += "恭喜<@%s> 抽到 %s卡「 *%s* 」\n" % (ctx.author.id, card.rarityData.name, card.name)
+                    cardAlert += "恭喜<@%s> 抽到 %s卡「 *%s* 」\n" % (
+                        ctx.author.id, card.rarityData.name, card.name)
             if cardAlert != "":
                 await ctx.channel.send(cardAlert)
         else:
             await ctx.channel.send("代幣不足 <:gura_cry:922084439465553920>")
-            
+
     # 卡池
     elif msg.lower() == CMD_PF + 'drawpool':
         pool = cardPool()
@@ -441,12 +442,13 @@ async def messageReact(self, client, ctx):
             cardList = data[1]
 
             # form up text
-            title = "%s 卡池 (%s%%)\n分解 %d 金幣" % (rarity.name, rarity.probability, rarity.decompose)
+            title = "%s 卡池 (%s%%)\n分解 %d 金幣" % (
+                rarity.name, rarity.probability, rarity.decompose)
             strCardList = ""
             for card in cardList:
                 strCardList += "%d. %s \n -> %s%%\n" % (card.id,
-                                                    card.name,
-                                                    card.probability)
+                                                        card.name,
+                                                        card.probability)
 
             embedList.append(embedCreator(
                 title, strCardList, colorList[colorIndex]))
@@ -478,7 +480,7 @@ async def messageReact(self, client, ctx):
                                                card["card_mount"])
             allData += "\n"
         await ctx.channel.send(allData)
-        
+
     # 分解卡片
     elif rawMsg[0].lower() == CMD_PF + "decomp":
         if len(rawMsg) == 3:
@@ -503,14 +505,20 @@ async def messageReact(self, client, ctx):
             if result is None:
                 await ctx.channel.send("你沒有這張卡 <:gura_cry:922084439465553920>")
             else:
-                await ctx.channel.send("<@%d> 分解%d張卡, 獲得%d枚金幣"%(ctx.author.id, result[0], result[1]))
+                await ctx.channel.send("<@%d> 分解%d張卡, 獲得%d枚金幣" % (ctx.author.id, result[0], result[1]))
 
-    # mijian
-    elif msg.lower() == CMD_PF + 'mijian':
-        today = datetime.now()
-        start = datetime.strptime("2022-03-31","%Y-%m-%d")
-        passing = today - start
-        str = "今天是咪醬頻道影片被刪的第%d天，矄宇確定要畢業了，但矄宇還是睡不著覺，心像是被掏空一般。忘了是第幾次，又習慣性打開了YT想找尋咪醬的蹤影，明明知道地，明明知道這是徒勞無功的，但矄宇還是阻止不了他自己。這！是雨嗎？手機螢幕上有了水珠...哈...原來只是矄宇笑嚕~"%(passing.days)
+    # thxhf
+    elif msg.lower() == CMD_PF + 'thxhf':
+        count = SQL.queryThxHf(ctx.author.id, ctx.guild.id)
+        str = "<@%d> 已在本伺服器感謝HF **%d** 次, 真是太感謝了 <:gura_love_2:989819626282168321>" % (
+            ctx.author.id, count)
+        await ctx.channel.send(str)
+
+    # thxhf here
+    elif msg.lower() == CMD_PF + 'thxhfhere':
+        count = SQL.queryThxHf(ctx.author.id, ctx.guild.id, ctx.channel.id)
+        str = "<@%d> 已在 <#%d> 感謝HF **%d** 次, 真是太感謝了 <:gura_love_2:989819626282168321>" % (
+            ctx.author.id, ctx.channel.id, count)
         await ctx.channel.send(str)
 
     # help
@@ -624,6 +632,10 @@ async def messageReact(self, client, ctx):
         await ctx.channel.send(embed=pic)
 
     else:
+        # thxhf counter
+        if msg.lower() == "thxhf":
+            SQL.increaseThxHf(ctx.author.id, ctx.guild.id, ctx.channel.id)
+
         # 預設顯示圖床圖片
         dbUrl = SQL.queryUrl(ctx.content.lower())
         if dbUrl != "":

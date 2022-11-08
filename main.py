@@ -12,28 +12,31 @@ import SQLConnect as SQL
 import DrawSQL
 import ExpModule
 
+
 class MyClient(discord.Client):
     # message log to console
     def msgLog(self, ctx, isEdited=False):
         # log
         if ctx.author != self.user:
-            caller = "%s"%(ctx.author)
+            caller = "%s" % (ctx.author)
             if ctx.author.nick != None:
-                caller += "(%s)"%(ctx.author.nick)
+                caller += "(%s)" % (ctx.author.nick)
             editMark = ""
             if isEdited:
                 editMark = "[Edited] "
             if ctx.content != '':
-                caller += " @ %s/%s: %s%s"%(ctx.guild, ctx.channel.name, editMark, ctx.content)
+                caller += " @ %s/%s: %s%s" % (ctx.guild,
+                                              ctx.channel.name, editMark, ctx.content)
             else:
-                caller += " @ %s/%s %s"%(ctx.guild, ctx.channel.name, editMark)
+                caller += " @ %s/%s %s" % (ctx.guild,
+                                           ctx.channel.name, editMark)
 
             for i in ctx.attachments:
-                caller += "\n\t [attachments] %s"%(i.url)
+                caller += "\n\t [attachments] %s" % (i.url)
             log(caller)
         else:
             return
-    
+
     # meme image filter
     async def memeFilter(self, ctx):
         if ctx.channel.id == 928824631345971241:
@@ -54,15 +57,15 @@ class MyClient(discord.Client):
                         await Msg.memeWarning(self, client, ctx, '連線錯誤, 請檢查連結')
                     await ctx.delete()
 
-
     # main func
     async def on_ready(self):
         for guild in self.guilds:
-            log("Logged on as %s @ %s"%(self.user, guild))
-        log("[SYS] %s is on ready."%(self.user))
+            log("Logged on as %s @ %s" % (self.user, guild))
+        log("[SYS] %s is on ready." % (self.user))
         asyncio.create_task(self.runSchedule())
         log("[SYS] Set state")
-        state = discord.Activity(type=discord.ActivityType.competing, name="最可i的 Holo EN")
+        state = discord.Activity(
+            type=discord.ActivityType.competing, name="最可i的 Holo EN")
         await client.change_presence(status=discord.Status.online, activity=state)
         log("[SYS] Startup finished")
 
@@ -73,21 +76,21 @@ class MyClient(discord.Client):
 
         # filter
         # 梗圖過濾
-        await self.memeFilter(ctx)
+        # await self.memeFilter(ctx)
 
         # 經驗值系統 (beta)
         if ctx.author.id != 879980183522779137 and ctx.author.id != 950919884802510890:
-            expSys=SQL.queryEnableExpSys(ctx.guild.id)
+            expSys = SQL.queryEnableExpSys(ctx.guild.id)
             if expSys != None and expSys[1] == True:
-                exp=ExpModule.addUsrExp(ctx.author.id, ctx.guild.id)
+                exp = ExpModule.addUsrExp(ctx.author.id, ctx.guild.id)
                 if exp[0] == exp[1]:
                     ExpModule.upgradeUsrLv(ctx.author.id, ctx.guild.id)
                     if expSys[0] != None:
                         chn = client.get_channel(expSys[0])
-                        await chn.send("Congrats! <@%d> has upgraded to Level %d!"%(ctx.author.id, exp[2]+1))
+                        await chn.send("Congrats! <@%d> has upgraded to Level %d!" % (ctx.author.id, exp[2]+1))
 
         # 觸發區域限制
-        if ctx.guild.id == 273814671985999873: #一言堂用
+        if ctx.guild.id == 273814671985999873:  # 一言堂用
             if "指令" in ctx.channel.name:
                 await Msg.messageReact(self, client, ctx)
         else:
@@ -103,7 +106,7 @@ class MyClient(discord.Client):
         await self.memeFilter(ctx)
 
         # 觸發區域限制
-        if ctx.guild.id == 273814671985999873: #一言堂用
+        if ctx.guild.id == 273814671985999873:  # 一言堂用
             if "指令" in ctx.channel.name:
                 await Msg.messageReact(self, client, ctx)
         else:
@@ -123,7 +126,7 @@ class MyClient(discord.Client):
                 await self.leetSchedule()
                 await self.poisonSoup()
                 DrawSQL.refreshFreeDraw()
-                await asyncio.sleep(60 * 60 * 24 - 60) # preserve for 1 mins
+                await asyncio.sleep(60 * 60 * 24 - 60)  # preserve for 1 mins
             await asyncio.sleep(1)
 
     async def leetSchedule(self):
@@ -133,17 +136,18 @@ class MyClient(discord.Client):
             chn = client.get_channel(int(i))
             if chn != None:
                 await chn.send(toSend)
-    
+
     async def poisonSoup(self):
         soup = f"---本日毒雞湯---\n{getPoisonSoup()}\n\n共勉之"
         chn = client.get_channel(929379945346629642)
         if chn != None:
             await chn.send(soup)
 
+
 # start client here
 intents = discord.Intents.default()
 intents.members = True
-intents.guilds = True            
+intents.guilds = True
 intents.message_content = True
 client = MyClient(intents=intents)
 client.run(TOKEN)
