@@ -176,8 +176,8 @@ def queryThxHf(usrId, guildId, channelId=None):
             sql = "SELECT SUM(count) FROM `HfCounter` WHERE `usr_id` = %s AND `guild_id` = %s AND `channel_id` = %s"
             cursor.execute(sql, (usrId, guildId, channelId))
         result = cursor.fetchone()
-        if len(result) == 0:
-            return -1
+        if result["SUM(count)"] is None:
+            return 0
         else:
             return result["SUM(count)"]
 
