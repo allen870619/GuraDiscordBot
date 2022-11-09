@@ -636,6 +636,11 @@ async def messageReact(self, client, ctx):
         if msg.lower() == "thxhf":
             SQL.increaseThxHf(ctx.author.id, ctx.guild.id, ctx.channel.id)
 
+        # text cmd
+        textCmd = SQL.queryTextCmd(msg.lower())
+        if textCmd is not None:
+            await ctx.channel.send(textCmd)
+
         # 預設顯示圖床圖片
         dbUrl = SQL.queryUrl(ctx.content.lower())
         if dbUrl != "":
