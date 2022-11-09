@@ -198,3 +198,15 @@ def increaseThxHf(usrId, guildId, channelId, value=1):
                 value, usrId, guildId, channelId)
             cursor.execute(sql)
         connection.commit()
+
+
+def queryTextCmd(cmd):
+    connection = connect()
+    with connection.cursor() as cursor:
+        sql = "SELECT `message` FROM `TextCmd` WHERE `cmd` = %s"
+        cursor.execute(sql, (cmd))
+        result = cursor.fetchone()
+        if result is None:
+            return None
+        else:
+            return result["message"]
