@@ -59,7 +59,7 @@ def embedCreator(title, description, color=None, authorName=None, authorUrl=None
     return embed
 
 
-async def messageReact(self, client, ctx):
+async def messageReact(self, client, ctx, isFromEdit=False):
     global isProxyMode, proxyList
     if ctx.author == self.user:
         return
@@ -95,6 +95,8 @@ async def messageReact(self, client, ctx):
         await MusicModule.leaving(ctx)
 
     elif msg.lower() == CMD_PF+"play" or msg.lower() == CMD_PF+"p":
+        if isFromEdit:
+            return
         try:
             # initial
             if MusicModule.vc is None:
@@ -106,7 +108,8 @@ async def messageReact(self, client, ctx):
                 if localUrl != "":
                     MusicModule.playSource(localUrl)
                 else:
-                    MusicModule.playYT(rawMsg[1])
+                    ytRawLink = rawMsg[1].split("&")[0]
+                    MusicModule.playYT(ytRawLink)
             else:
                 if MusicModule.audioSource != None:
                     MusicModule.vc.resume()

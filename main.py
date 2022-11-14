@@ -110,7 +110,7 @@ class MyClient(discord.Client):
             if "指令" in ctx.channel.name:
                 await Msg.messageReact(self, client, ctx)
         else:
-            await Msg.messageReact(self, client, ctx)
+            await Msg.messageReact(self, client, ctx, isFromEdit=True)
 
     # voice
     async def on_voice_state_update(self, member, _, after):
