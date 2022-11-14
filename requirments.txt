@@ -6,3 +6,4 @@ pymysql
 psutil
 numpy
 opencc-python-reimplemented
+pynacl
