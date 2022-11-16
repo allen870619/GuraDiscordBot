@@ -68,7 +68,11 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     # 直接播音樂模組: 頻道名稱有 '音樂' 或 'music' 才會觸發
     if "music" in ctx.channel.name or "音樂" in ctx.channel.name:
         if ctx.content.startswith("http"):
-            origin = '!play ' + ctx.content  # music channel directly paste url
+            urlList = origin.split("\n")
+            origin = ""
+            for cmd in urlList:
+                if cmd.startswith("http"):
+                    origin += '!play ' + cmd + "\n" # music channel directly paste url
 
     # preprocess
     rawMsg = origin.split(sep=" ")
@@ -108,8 +112,12 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 if localUrl != "":
                     MusicModule.playSource(localUrl)
                 else:
-                    ytRawLink = rawMsg[1].split("&")[0]
-                    MusicModule.playYT(ytRawLink)
+                    urlList = origin.split("\n")
+                    for eachCmd in urlList:
+                        urlSplit = eachCmd.split(" ")
+                        if len(urlSplit) > 1:
+                            ytRawLink = urlSplit[1].split("&")[0]
+                            MusicModule.playYT(ytRawLink)
             else:
                 if MusicModule.audioSource != None:
                     MusicModule.vc.resume()
