@@ -103,7 +103,7 @@ class MyClient(discord.Client):
 
         # filter
         # 梗圖過濾
-        await self.memeFilter(ctx)
+        # await self.memeFilter(ctx)
 
         # 觸發區域限制
         if ctx.guild.id == 273814671985999873:  # 一言堂用

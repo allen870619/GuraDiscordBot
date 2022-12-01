@@ -397,8 +397,8 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         else:
             try:
                 times = int(rawMsg[1])
-                if times > 10:  # max 10 times
-                    times = 10
+                if times > 50: 
+                    times = 50
             except Exception:
                 times = 1
 
@@ -407,21 +407,23 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         containFreeDraw = False
         coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
         free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
+        allFree = free
         for _ in range(0, times):
             if coin < DrawSQL.drawCost and free == 0:
                 break
             actualDraw += 1
             hasFree = free > 0
             if hasFree:
-                containFreeDraw = True
                 free -= 1
             else:
                 coin -= DrawSQL.drawCost
             DrawSQL.drawConsume(ctx.author.id, ctx.guild.id, hasFree)
 
         # discount when draw 10 cards
-        if actualDraw == 10 and not containFreeDraw:
-            DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id, 5)
+        costDraw = actualDraw - allFree
+        if actualDraw >= 10 and costDraw > 0:
+            for _ in range(0, int(costDraw / 10)):
+                DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id, 5)
 
         # send message
         if actualDraw > 0:
