@@ -431,7 +431,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
 
             await ctx.channel.send('抽卡 %d 張   <:gura_fascinate:922084439822053377>' % (actualDraw))
             cardAlert = ""
-            for card in cards:
+            for index, card in enumerate(cards):
                 if card.id == 1:
                     allowed_mentions = discord.AllowedMentions(everyone=True)
                     await ctx.channel.send(content="@everyone 全員注意!!", allowed_mentions=allowed_mentions)
@@ -439,6 +439,9 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 else:
                     cardAlert += "恭喜<@%s> 抽到 %s卡「 *%s* 」\n" % (
                         ctx.author.id, card.rarityData.name, card.name)
+                if (index+1) % 10 == 0 and cardAlert != "":
+                    await ctx.channel.send(cardAlert)
+                    cardAlert = ""
             if cardAlert != "":
                 await ctx.channel.send(cardAlert)
         else:
