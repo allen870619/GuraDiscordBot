@@ -61,9 +61,16 @@ def decomposeCard(usrId, guildId, id, num):
 
 # debug
 def test():
-    # a = DrawSQL.queryRarity()
-    # for i in range(0, 500):
-    #     rarityPart = drawRarity(a)
-    #     card = drawSingleCard(DrawSQL.queryCard(rarityPart))
-    #     print("%s卡 ! 恭喜你抽到 *%s*" % (card.rarityData.name, card.name))
-    print(decomposeCard(405739307517870110, 870855015676391505, 18, 5))
+    patition = DrawSQL.queryRarity()
+    for i in range(0, 10000):
+        rarityPart = drawRarity(patition)
+        card = drawSingleCard(DrawSQL.queryCard(rarityPart)) 
+        if i % 100 == 0:
+            print(i)
+        if card.id == 25:
+            print(card.name)
+        # print("%s卡 ! 恭喜你抽到 *%s*" % (card.rarityData.name, card.name))
+    # print(decomposeCard(405739307517870110, 870855015676391505, 18, 5))
+    print("end")
+    
+# test()
