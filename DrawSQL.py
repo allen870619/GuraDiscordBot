@@ -60,6 +60,8 @@ def getUsrDrawCoin(usrId, guildId):
             return result["draw_coin"]
 
 # 免費抽卡
+
+
 def getFreeDraw(usrId, guildId):
     connection = connect()
     with connection.cursor() as cursor:
@@ -67,14 +69,17 @@ def getFreeDraw(usrId, guildId):
             usrId, guildId)
         cursor.execute(sql)
         result = cursor.fetchone()
-        return result["free_draw"]            
-        
+        return result["free_draw"]
+
 # 更新免費抽卡
+
+
 def refreshFreeDraw():
     connection = connect()
     with connection.cursor() as cursor:
-        nowStr = datetime.strftime(datetime.now(),'%Y-%m-%d %H:%M:%S')
-        sql = "UPDATE `CardUsrData` SET `free_draw`=%d, `last_free_draw`='%s'" % (freeDraw, nowStr)
+        nowStr = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
+        sql = "UPDATE `CardUsrData` SET `free_draw`=%d, `last_free_draw`='%s'" % (
+            freeDraw, nowStr)
         cursor.execute(sql)
         connection.commit()
 
@@ -85,7 +90,8 @@ def drawConsume(usrId, guildId, hasFree=False, drawCost=drawCost):
     connection = connect()
     with connection.cursor() as cursor:
         if hasFree:
-            sql = "UPDATE `CardUsrData` SET `free_draw`=`free_draw`-1 WHERE `usr_id` = %d AND `guild_id` = %d" % (usrId, guildId)
+            sql = "UPDATE `CardUsrData` SET `free_draw`=`free_draw`-1 WHERE `usr_id` = %d AND `guild_id` = %d" % (
+                usrId, guildId)
         else:
             sql = "UPDATE `CardUsrData` SET `draw_coin`=`draw_coin`-%d WHERE `usr_id` = %d AND `guild_id` = %d" % (
                 drawCost, usrId, guildId)
@@ -118,7 +124,8 @@ def queryRarity():
         else:
             list = []
             for i in result:
-                rarity = RarityEntity(i["id"], i["name"], i["probability"], i["decompose"])
+                rarity = RarityEntity(
+                    i["id"], i["name"], i["probability"], i["decompose"])
                 list.append(rarity)
             return list
 
@@ -187,37 +194,45 @@ def getUsrCardList(usrId, guildId):
         return list
 
 # 取得使用者特定卡片數量
+
+
 def getUsrCardCount(usrId, guildId, id):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "SELECT card_mount FROM CardUsrProperty WHERE usr_id = %d AND guild_id = %d and card_id = %d" %(usrId, guildId, id)
+        sql = "SELECT card_mount FROM CardUsrProperty WHERE usr_id = %d AND guild_id = %d and card_id = %d" % (
+            usrId, guildId, id)
         cursor.execute(sql)
         result = cursor.fetchone()
         if result is None:
             return -1
         else:
             return result["card_mount"]
-        
+
 # 分解使用者特定卡片
+
+
 def decomposeCard(usrId, guildId, id, num, originCount):
     connection = connect()
     with connection.cursor() as cursor:
         if num >= originCount:
             num = originCount
-            sql = "DELETE FROM CardUsrProperty WHERE usr_id = %d AND guild_id = %d and card_id = %d" %(usrId, guildId, id)
+            sql = "DELETE FROM CardUsrProperty WHERE usr_id = %d AND guild_id = %d and card_id = %d" % (
+                usrId, guildId, id)
         else:
-            sql = "UPDATE CardUsrProperty SET card_mount=card_mount-%d WHERE usr_id = %d AND guild_id = %d and card_id = %d" %(num, usrId, guildId, id)
+            sql = "UPDATE CardUsrProperty SET card_mount=card_mount-%d WHERE usr_id = %d AND guild_id = %d and card_id = %d" % (
+                num, usrId, guildId, id)
         cursor.execute(sql)
         connection.commit()
-        
+
         # 取得卡片價錢
-        sql = "SELECT decompose FROM CardPool LEFT JOIN CardRarity ON CardPool.rarity = CardRarity.id WHERE CardPool.id = %d" %(id)
+        sql = "SELECT decompose FROM CardPool LEFT JOIN CardRarity ON CardPool.rarity = CardRarity.id WHERE CardPool.id = %d" % (
+            id)
         cursor.execute(sql)
         coin = cursor.fetchone()["decompose"]
         total = coin * num
         drawAddCoin(usrId, guildId, total)
         return (num, total)
-        
+
 # debug
 
 
@@ -231,3 +246,28 @@ def test():
     # getFreeDraw(405739307517870110, 870855015676391505)
     # refreshFreeDraw()
     print(getUsrCardCount(405739307517870110, 870855015676391505, 18))
+
+# test case
+def verifiedRarity():
+    list = queryRarity()
+    for part in list:
+        cardList = queryCard(part)
+        count = 0
+        wholeRarity = 0
+        inuse = 0
+        print(f"{part.name} 開始驗證, 預定機率: {part.probability}%")
+        for card in cardList:
+            count += card.probability
+            if card.probability > 0:
+                inuse += 1
+            whole = card.probability * part.probability / 100
+            wholeRarity += whole
+            print(f"    卡池總機率: {card.name} {whole}%")
+        print(f"    合計: {count}%, 卡池總機率: {wholeRarity}%")
+        if count != 100:
+            print("!!!!!!!分區機率錯誤!!!!")
+        else:
+            print(f"---{part.name} 機率驗證完成---")
+        print()
+
+# verifiedRarity()
