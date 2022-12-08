@@ -65,8 +65,10 @@ class MyClient(discord.Client):
         asyncio.create_task(self.runSchedule())
         log("[SYS] Set state")
         state = discord.Activity(
-            type=discord.ActivityType.competing, name="最可i的 Holo EN")
+            type=discord.ActivityType.competing,
+            name="最可i的 Holo EN")
         await client.change_presence(status=discord.Status.online, activity=state)
+        asyncio.create_task(self.thirtySecUpdate())
         log("[SYS] Startup finished")
 
     # message
@@ -142,12 +144,29 @@ class MyClient(discord.Client):
         chn = client.get_channel(929379945346629642)
         if chn != None:
             await chn.send(soup)
-
+                    
+    async def thirtySecUpdate(self):
+        while True:
+            await self.changeDate()
+            await self.setOnlineStatus()
+            await asyncio.sleep(30)
+        
+    async def changeDate(self):
+        chn = client.get_channel(1050243994111709234)
+        date = datetime.datetime.now().strftime("%Y年%m月%d日")
+        await chn.edit(name=f"{date}")
+        
+    async def setOnlineStatus(self):
+        guild = client.get_guild(870855015676391505)
+        chn = client.get_channel(1050252285936140349)
+        online = list(filter(lambda fx: fx.status != discord.Status.offline, guild.members))
+        await chn.edit(name=f"上線人數: {len(online)}")
 
 # start client here
 intents = discord.Intents.default()
 intents.members = True
 intents.guilds = True
 intents.message_content = True
+intents.presences = True
 client = MyClient(intents=intents)
 client.run(TOKEN)
