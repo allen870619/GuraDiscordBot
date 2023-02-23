@@ -16,6 +16,8 @@ from Utils import log, colorToHex
 from PsutilSensor import getAllInfo
 # 雞湯
 from PoisonSoup import getPoisonSoup
+# openai
+from openaiChat import openai_txt_chat
 
 # utils
 # getting img
@@ -535,6 +537,14 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         count = SQL.queryThxHf(ctx.author.id, ctx.guild.id, ctx.channel.id)
         str = "<@%d> 已在 <#%d> 感謝HF **%d** 次, 真是太感謝了 <:gura_love_2:989819626282168321>" % (
             ctx.author.id, ctx.channel.id, count)
+        await ctx.channel.send(str)
+    
+    # openai chat
+    elif rawMsg[0].lower() == CMD_PF + "ask" and ctx.channel.id == 1078152776300896338:
+        prompts = origin[5:]
+        
+        txt = openai_txt_chat(prompts)
+        str = f"<@{ctx.author.id}> 鯊魚說: {txt}"
         await ctx.channel.send(str)
 
     # help

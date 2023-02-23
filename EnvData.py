@@ -14,3 +14,6 @@ DB_DATABASE = os.getenv('DB_DATABASE')
 # DB_USR = os.getenv('DB_USR_TEST')
 # DB_PW = os.getenv('DB_PW_TEST')
 # DB_DATABASE = os.getenv('DB_DATABASE_TEST')
+
+# open ai
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
