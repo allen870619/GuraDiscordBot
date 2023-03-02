@@ -544,7 +544,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         prompts = origin[5:]
         
         txt = openai_txt_chat(prompts)
-        str = f"<@{ctx.author.id}> 鯊魚說: {txt}"
+        str = f"<@{ctx.author.id}> \n{txt}"
         await ctx.channel.send(str)
 
     # help
