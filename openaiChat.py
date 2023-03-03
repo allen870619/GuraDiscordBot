@@ -22,18 +22,20 @@ messageList = []
 
 def openai_gpt_chat(msgToSend: str, userId):
     global messageList
-    toSendJson = [{"role": "user", "content": msgToSend}]
+    toSendJson = {"role": "user", "content": msgToSend}
+    tmp = messageList
+    tmp.append(toSendJson)
     try: 
         response = openai.ChatCompletion.create(model="gpt-3.5-turbo",
-                                                messages=messageList+toSendJson,
+                                                messages=tmp,
                                                 temperature=0.75,
                                                 n=1,
                                                 max_tokens=2048,
                                                 user=f"{userId}")
         content = response["choices"][0]["message"]["content"][2:]
-        messageList.append(toSendJson)
-        messageList.append({"role": "user", "content": content})
-    except:
+        messageList = tmp
+        messageList.append({"role": "user", "content": f"{content}"})
+    except Exception as e:
+        print(e)
         return "伺服器涼了 { 6 Д 9 } 請再試一次"    
     return content
-
