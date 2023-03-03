@@ -17,7 +17,7 @@ from PsutilSensor import getAllInfo
 # 雞湯
 from PoisonSoup import getPoisonSoup
 # openai
-from openaiChat import openai_txt_chat
+from openaiChat import openai_txt_chat, openai_gpt_chat
 
 # utils
 # getting img
@@ -546,6 +546,11 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         txt = openai_txt_chat(prompts)
         str = f"<@{ctx.author.id}> \n{txt}"
         await ctx.channel.send(str)
+    
+    # openai chat
+    elif ctx.channel.id == 1081043151575326871 and len(origin) > 0:
+        resp = openai_gpt_chat(origin, userId=ctx.author.id)
+        await ctx.channel.send(resp)
 
     # help
     elif msg == CMD_PF + '功能' or msg.lower() == CMD_PF + 'func' or msg.lower() == CMD_PF + 'help':
