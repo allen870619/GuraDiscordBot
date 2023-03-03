@@ -548,8 +548,8 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         await ctx.channel.send(str)
     
     # openai chat
-    elif ctx.channel.id == 1081043151575326871 and len(origin) > 0:
-        resp = openai_gpt_chat(origin, userId=ctx.author.id)
+    elif ctx.channel.id == 1081213613274050620 and len(origin) > 0:
+        resp = openai_gpt_chat(origin, user_id=ctx.author.id)
         await ctx.channel.send(resp)
 
     # help

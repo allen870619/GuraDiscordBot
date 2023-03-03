@@ -68,7 +68,7 @@ class MyClient(discord.Client):
             type=discord.ActivityType.competing,
             name="最可i的 Holo EN")
         await client.change_presence(status=discord.Status.online, activity=state)
-        asyncio.create_task(self.thirtySecUpdate())
+        asyncio.create_task(self.update_server_status())
         log("[SYS] Startup finished")
 
     # message
@@ -145,7 +145,7 @@ class MyClient(discord.Client):
         if chn != None:
             await chn.send(soup)
                     
-    async def thirtySecUpdate(self):
+    async def update_server_status(self):
         while True:
             await self.changeDate()
             await self.setOnlineStatus()
