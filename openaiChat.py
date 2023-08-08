@@ -32,7 +32,7 @@ def openai_gpt_chat(msgToSend: str, user_id):
     tmp_list.append(to_send_msg)
     
     try: 
-        response = openai.ChatCompletion.create(model="gpt-3.5-turbo",
+        response = openai.ChatCompletion.create(model="gpt-3.5-turbo-16k-0613",
                                                 messages=tmp_list,
                                                 max_tokens=max_token,
                                                 user=f"{user_id}")
@@ -56,3 +56,6 @@ def openai_gpt_chat(msgToSend: str, user_id):
         log(e)
         return "伺服器涼了 { 6 Д 9 } 請再試一次"
     return content
+
+
+print(openai_gpt_chat("Hello world", 12321312))
