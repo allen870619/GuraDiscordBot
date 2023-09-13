@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # token
-TOKEN = os.getenv('DISCORD_TOKEN')
-# TOKEN = os.getenv('DISCORD_DEBUG_TOKEN')
+# TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv('DISCORD_DEBUG_TOKEN')
 
 # db
 DB_URL = os.getenv('DB_URL')
