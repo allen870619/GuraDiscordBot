@@ -71,6 +71,25 @@ class MyClient(discord.Client):
         asyncio.create_task(self.update_server_status())
         log("[SYS] Startup finished")
 
+    async def on_raw_reaction_add(self, ctx):
+        # Todo: add emoji filter
+        emojiId = ctx.emoji.id
+        targetMessageId =  ctx.message_id
+
+        targetRole = ctx.member.guild.get_role(1151197869194366976) 
+        await ctx.member.add_roles(targetRole)
+        
+    async def on_raw_reaction_remove(self, ctx):
+        # Todo: add emoji filter
+        emojiId = ctx.emoji.id
+        targetMessageId = ctx.message_id
+
+        guild = client.get_guild(ctx.guild_id)
+        usr = guild.get_member(ctx.user_id)
+
+        targetRole = guild.get_role(1151197869194366976) 
+        await usr.remove_roles(targetRole)
+
     # message
     async def on_message(self, ctx):
         # log
