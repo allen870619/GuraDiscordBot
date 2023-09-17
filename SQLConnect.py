@@ -211,11 +211,11 @@ def queryTextCmd(cmd):
         else:
             return result["message"]
 
-def query_reaction_role_id(guildId: int, messageId: int, stickerId: int):
+def query_reaction_role_id(guildId: int, messageId: int, emojiId: int):
     connection = connect()
     with connection.cursor() as cursor:
-        sql = "SELECT `role_id` FROM `GuildData` JOIN `RoleGiven` WHERE `role_given_message_id` = `message_id` and `guild_id` = %s and `message_id` = %s and `sticker_id` = %s"
-        cursor.execute(sql, (guildId, messageId, stickerId))
+        sql = "SELECT `role_id` FROM `GuildData` JOIN `RoleGiven` WHERE `role_given_message_id` = `message_id` and `guild_id` = %s and `message_id` = %s and `emoji_id` = %s"
+        cursor.execute(sql, (guildId, messageId, emojiId))
         result = cursor.fetchone()
         if result is None:
             return None
