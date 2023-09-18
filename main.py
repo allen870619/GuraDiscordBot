@@ -71,6 +71,30 @@ class MyClient(discord.Client):
         asyncio.create_task(self.update_server_status())
         log("[SYS] Startup finished")
 
+    # message reaction
+    async def on_raw_reaction_add(self, ctx):
+        guildId = ctx.guild_id
+        messageId = ctx.message_id
+        emojiId = ctx.emoji.id
+        roleId = SQL.query_reaction_role_id(guildId=guildId, messageId=messageId, emojiId=emojiId)
+
+        if roleId is not None: 
+            guild = client.get_guild(guildId)
+            role = guild.get_role(eval(roleId))
+            await ctx.member.add_roles(role)    
+        
+    async def on_raw_reaction_remove(self, ctx):
+        guildId = ctx.guild_id
+        messageId = ctx.message_id
+        emojiId = ctx.emoji.id
+        roleId = SQL.query_reaction_role_id(guildId=guildId, messageId=messageId, emojiId=emojiId)
+
+        if roleId is not None: 
+            guild = client.get_guild(guildId)
+            usr = guild.get_member(ctx.user_id)
+            role = guild.get_role(eval(roleId))
+            await usr.remove_roles(role)
+            
     # message
     async def on_message(self, ctx):
         # log
