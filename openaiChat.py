@@ -56,6 +56,3 @@ def openai_gpt_chat(msgToSend: str, user_id):
         log(e)
         return "伺服器涼了 { 6 Д 9 } 請再試一次"
     return content
-
-
-print(openai_gpt_chat("Hello world", 12321312))
