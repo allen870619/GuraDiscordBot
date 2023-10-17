@@ -32,7 +32,7 @@ def openai_gpt_chat(msgToSend: str, user_id):
     tmp_list.append(to_send_msg)
     
     try: 
-        response = openai.ChatCompletion.create(model="gpt-4",
+        response = openai.ChatCompletion.create(model="gpt-3.5-turbo",
                                                 messages=tmp_list,
                                                 max_tokens=max_token,
                                                 user=f"{user_id}")
