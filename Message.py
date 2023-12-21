@@ -19,6 +19,9 @@ from PoisonSoup import getPoisonSoup
 # openai
 from openaiChat import openai_txt_chat, openai_gpt_chat
 
+# Message interceptor
+import MessageInterceptor.XVideoInterceptor as XVideoInterceptor
+
 # utils
 # getting img
 
@@ -660,9 +663,10 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         await ctx.channel.send(embed=music)
         await ctx.channel.send(embed=drawCardHint)
         await ctx.channel.send(embed=other)
-        await ctx.channel.send(embed=pic)
-
+        await ctx.channel.send(embed=pic)    
     else:
+        await XVideoInterceptor.x_video_url_renamer(ctx, client=client)
+
         # thxhf counter
         if msg.lower() == "thxhf":
             SQL.increaseThxHf(ctx.author.id, ctx.guild.id, ctx.channel.id)
@@ -684,6 +688,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         else:
             # 增加代幣
             DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id)
+    
 
 
 async def memeWarning(self, client, ctx, memo=None):
