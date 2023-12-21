@@ -62,14 +62,28 @@ class MyClient(discord.Client):
         for guild in self.guilds:
             log("Logged on as %s @ %s" % (self.user, guild))
         log("[SYS] %s is on ready." % (self.user))
-        asyncio.create_task(self.runSchedule())
+       
+        # clear async tasks
+        for task in asyncio.all_tasks():
+            if "Custom" in task.get_name():
+                task.cancel()
+
+        # create tasks
+        asyncio.create_task(self.run_schedule(), name="Custom: Leetcode")
         log("[SYS] Set state")
         state = discord.Activity(
             type=discord.ActivityType.competing,
             name="最可i的 Holo EN")
         await client.change_presence(status=discord.Status.online, activity=state)
-        asyncio.create_task(self.update_server_status())
+        asyncio.create_task(self.update_server_status(), name="Custom: Server Info")
         log("[SYS] Startup finished")
+            
+        # update state
+        state = discord.Activity(
+                type=discord.ActivityType.competing,
+                name="最可i的 Holo EN")
+        await client.change_presence(status=discord.Status.online, activity=state)
+        log("[SYS] Startup finished")  
 
     # message reaction
     async def on_raw_reaction_add(self, ctx):
@@ -137,6 +151,13 @@ class MyClient(discord.Client):
                 await Msg.messageReact(self, client, ctx)
         else:
             await Msg.messageReact(self, client, ctx, isFromEdit=True)
+            
+    # error
+    async def on_error(self, event, *args, **kwargs):
+        try: 
+            log("[ERROR]", event, args[0])
+        except:
+            log("[ERROR]", event)
 
     # voice
     async def on_voice_state_update(self, member, _, after):
@@ -144,18 +165,18 @@ class MyClient(discord.Client):
             await MusicModule.leaving(None)
 
     # leet schedule
-    async def runSchedule(self):
+    async def run_schedule(self):
         log("[SYS] Leetcode crawler activated")
         while True:
             now = datetime.datetime.now()
             if now.strftime("%H:%M") == "08:00":
-                await self.leetSchedule()
-                await self.poisonSoup()
+                await self.leet_schedule()
+                await self.poison_soup()
                 DrawSQL.refreshFreeDraw()
                 await asyncio.sleep(60 * 60 * 24 - 60)  # preserve for 1 mins
             await asyncio.sleep(1)
 
-    async def leetSchedule(self):
+    async def leet_schedule(self):
         toSend = LCC.dailyProblem()
         list = SQL.queryLeetChn()
         for i in list:
@@ -163,7 +184,7 @@ class MyClient(discord.Client):
             if chn != None:
                 await chn.send(toSend)
 
-    async def poisonSoup(self):
+    async def poison_soup(self):
         soup = f"---本日毒雞湯---\n{getPoisonSoup()}\n\n共勉之"
         chn = client.get_channel(929379945346629642)
         if chn != None:
@@ -171,17 +192,17 @@ class MyClient(discord.Client):
                     
     async def update_server_status(self):
         while True:
-            await self.changeDate()
-            await self.setOnlineStatus()
+            await self.change_date()
+            await self.set_online_status()
             await asyncio.sleep(30)
         
-    async def changeDate(self):
+    async def change_date(self):
         chn = client.get_channel(1050243994111709234)
         date = datetime.datetime.now().strftime("%Y年%m月%d日")
         if chn.name != f"{date}":
             await chn.edit(name=f"{date}")
         
-    async def setOnlineStatus(self):
+    async def set_online_status(self):
         guild = client.get_guild(870855015676391505)
         chn = client.get_channel(1050252285936140349)
         onlineFilter = filter(lambda fx: fx.status != discord.Status.offline, guild.members)
