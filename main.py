@@ -154,10 +154,11 @@ class MyClient(discord.Client):
             
     # error
     async def on_error(self, event, *args, **kwargs):
-        try: 
-            log("[ERROR]", event, args[0])
+        try:
+            logStr = "[ERROR]", event, args[0]
         except:
-            log("[ERROR]", event)
+            logStr = "[ERROR]", event
+        log(logStr)
 
     # voice
     async def on_voice_state_update(self, member, _, after):
