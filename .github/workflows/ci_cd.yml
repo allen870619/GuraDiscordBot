@@ -8,16 +8,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Kill current service
-        run: |
-            pgrep -fi main.py
-            if [ $? -eq 0 ];
-            then
-              echo "Killing the previous process"
-              kill -9 $(pgrep -fi main.py)
-            else
-              echo "No previous process exists."
-            fi
+    #   - name: Kill current service
+    #     run: |
+    #         pgrep -fi main.py
+    #         if [ $? -eq 0 ];
+    #         then
+    #           echo "Killing the previous process"
+    #           kill -9 $(pgrep -fi main.py)
+    #         else
+    #           echo "No previous process exists."
+    #         fi
       - name: Install dependencies
         run: |
             pip3 install -r requirments.txt
