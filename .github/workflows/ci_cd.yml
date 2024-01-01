@@ -23,4 +23,4 @@ jobs:
             pip3 install -r requirments.txt
       - name: run main code
         run: |
-            nohup python3 ../main.py prod > chat_$(date --iso-8601=seconds).log &
+            nohup python3 main.py prod > chat_$(date --iso-8601=seconds).log &
