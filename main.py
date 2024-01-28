@@ -13,23 +13,23 @@ import ExpModule
 
 class MyClient(discord.Client):
     # message log to console
-    def msgLog(self, ctx, isEdited=False):
+    def msgLog(self, message_context, isEdited=False):
         # log
-        if ctx.author != self.user:
-            caller = "%s" % (ctx.author)
-            if ctx.author.nick != None:
-                caller += "(%s)" % (ctx.author.nick)
+        if message_context.author != self.user:
+            caller = "%s" % (message_context.author)
+            if message_context.author.nick != None:
+                caller += "(%s)" % (message_context.author.nick)
             editMark = ""
             if isEdited:
                 editMark = "[Edited] "
-            if ctx.content != '':
-                caller += " @ %s/%s: %s%s" % (ctx.guild,
-                                              ctx.channel.name, editMark, ctx.content)
+            if message_context.content != '':
+                caller += " @ %s/%s: %s%s" % (message_context.guild,
+                                              message_context.channel.name, editMark, message_context.content)
             else:
-                caller += " @ %s/%s %s" % (ctx.guild,
-                                           ctx.channel.name, editMark)
+                caller += " @ %s/%s %s" % (message_context.guild,
+                                           message_context.channel.name, editMark)
 
-            for i in ctx.attachments:
+            for i in message_context.attachments:
                 caller += "\n\t [attachments] %s" % (i.url)
             log(caller)
         else:
@@ -64,63 +64,64 @@ class MyClient(discord.Client):
         log("[SYS] Startup finished")  
 
     # message reaction
-    async def on_raw_reaction_add(self, ctx):
-        guildId = ctx.guild_id
-        messageId = ctx.message_id
-        emojiId = ctx.emoji.id
+    async def on_raw_reaction_add(self, message_context):
+        guildId = message_context.guild_id
+        messageId = message_context.message_id
+        emojiId = message_context.emoji.id
         roleId = SQL.query_reaction_role_id(guildId=guildId, messageId=messageId, emojiId=emojiId)
 
         if roleId is not None: 
             guild = client.get_guild(guildId)
             role = guild.get_role(eval(roleId))
-            await ctx.member.add_roles(role)    
+            await message_context.member.add_roles(role)    
         
-    async def on_raw_reaction_remove(self, ctx):
-        guildId = ctx.guild_id
-        messageId = ctx.message_id
-        emojiId = ctx.emoji.id
+    async def on_raw_reaction_remove(self, message_context):
+        guildId = message_context.guild_id
+        messageId = message_context.message_id
+        emojiId = message_context.emoji.id
         roleId = SQL.query_reaction_role_id(guildId=guildId, messageId=messageId, emojiId=emojiId)
 
         if roleId is not None: 
             guild = client.get_guild(guildId)
-            usr = guild.get_member(ctx.user_id)
+            usr = guild.get_member(message_context.user_id)
             role = guild.get_role(eval(roleId))
             await usr.remove_roles(role)
             
     # message
-    async def on_message(self, ctx):
+    async def on_message(self, message_context):
+        print(message_context)
         # log
-        self.msgLog(ctx)
+        self.msgLog(message_context)
 
         # 經驗值系統 (beta)
-        if ctx.author.id != 879980183522779137 and ctx.author.id != 950919884802510890:
-            expSys = SQL.queryEnableExpSys(ctx.guild.id)
+        if message_context.author.id != 879980183522779137 and message_context.author.id != 950919884802510890:
+            expSys = SQL.queryEnableExpSys(message_context.guild.id)
             if expSys != None and expSys[1] == True:
-                exp = ExpModule.addUsrExp(ctx.author.id, ctx.guild.id)
+                exp = ExpModule.addUsrExp(message_context.author.id, message_context.guild.id)
                 if exp[0] == exp[1]:
-                    ExpModule.upgradeUsrLv(ctx.author.id, ctx.guild.id)
+                    ExpModule.upgradeUsrLv(message_context.author.id, message_context.guild.id)
                     if expSys[0] != None:
                         chn = client.get_channel(expSys[0])
-                        await chn.send("Congrats! <@%d> has upgraded to Level %d!" % (ctx.author.id, exp[2]+1))
+                        await chn.send("Congrats! <@%d> has upgraded to Level %d!" % (message_context.author.id, exp[2]+1))
 
         # 觸發區域限制
-        if ctx.guild.id == 273814671985999873:  # 一言堂用
-            if "指令" in ctx.channel.name:
-                await Msg.messageReact(self, client, ctx)
+        if message_context.guild.id == 273814671985999873:  # 一言堂用
+            if "指令" in message_context.channel.name:
+                await Msg.messageReact(self, client, message_context)
         else:
-            await Msg.messageReact(self, client, ctx)
+            await Msg.messageReact(self, client, message_context)
 
     # edit message
-    async def on_message_edit(self, _, ctx):
+    async def on_message_edit(self, _, message_context):
         # log
-        self.msgLog(ctx, True)   
+        self.msgLog(message_context, True)   
 
         # 觸發區域限制
-        if ctx.guild.id == 273814671985999873:  # 一言堂用
-            if "指令" in ctx.channel.name:
-                await Msg.messageReact(self, client, ctx)
+        if message_context.guild.id == 273814671985999873:  # 一言堂用
+            if "指令" in message_context.channel.name:
+                await Msg.messageReact(self, client, message_context)
         else:
-            await Msg.messageReact(self, client, ctx, isFromEdit=True)
+            await Msg.messageReact(self, client, message_context, isFromEdit=True)
             
     # error
     async def on_error(self, event, *args, **kwargs):
