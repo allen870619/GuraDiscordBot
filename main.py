@@ -1,6 +1,5 @@
 import discord
 import datetime
-import requests
 import Message as Msg
 import MusicModule
 import LeetcodeCrawler as LCC
@@ -11,7 +10,6 @@ from Utils import log
 import SQLConnect as SQL
 import DrawSQL
 import ExpModule
-
 
 class MyClient(discord.Client):
     # message log to console
@@ -36,26 +34,6 @@ class MyClient(discord.Client):
             log(caller)
         else:
             return
-
-    # meme image filter
-    async def memeFilter(self, ctx):
-        if ctx.channel.id == 928824631345971241:
-            url = ctx.content
-            if url != '':
-                try:
-                    if url.startswith('http') or url.startswith('www'):
-                        if not requests.get(url).ok:
-                            await Msg.memeWarning(self, client, ctx)
-                            await ctx.delete()
-                    else:
-                        await Msg.memeWarning(self, client, ctx)
-                        await ctx.delete()
-                except Exception as e:
-                    if type(e) == requests.exceptions.MissingSchema:
-                        await Msg.memeWarning(self, client, ctx)
-                    else:
-                        await Msg.memeWarning(self, client, ctx, '連線錯誤, 請檢查連結')
-                    await ctx.delete()
 
     # main func
     async def on_ready(self):
@@ -114,10 +92,6 @@ class MyClient(discord.Client):
         # log
         self.msgLog(ctx)
 
-        # filter
-        # 梗圖過濾
-        # await self.memeFilter(ctx)
-
         # 經驗值系統 (beta)
         if ctx.author.id != 879980183522779137 and ctx.author.id != 950919884802510890:
             expSys = SQL.queryEnableExpSys(ctx.guild.id)
@@ -139,11 +113,7 @@ class MyClient(discord.Client):
     # edit message
     async def on_message_edit(self, _, ctx):
         # log
-        self.msgLog(ctx, True)
-
-        # filter
-        # 梗圖過濾
-        # await self.memeFilter(ctx)
+        self.msgLog(ctx, True)   
 
         # 觸發區域限制
         if ctx.guild.id == 273814671985999873:  # 一言堂用
