@@ -2,7 +2,6 @@ import discord
 import subprocess
 import LeetcodeCrawler as LCC
 import MusicModule
-import time
 from datetime import datetime
 # 抽卡
 from DrawCard import drawCard, cardPool, decomposeCard
@@ -10,7 +9,6 @@ import DrawSQL
 # 發圖片請求用
 import requests
 # Requests基本設定Class
-from RequestSetting import *
 import SQLConnect as SQL
 from Utils import log, colorToHex
 from PsutilSensor import getAllInfo
@@ -80,18 +78,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     rawMsg = origin.split(sep=" ")
     msg = rawMsg[0]
     CMD_PF = SQL.queryPrefixURL(ctx.guild.id)
-
-    # proxy chat send
-    if isProxyMode and "proxy" in ctx.channel.name:
-        if origin == "!proxy":
-            isProxyMode = False
-            proxyList.clear()
-            await ctx.channel.send("---代理聊天已結束---")
-            return
-        for i in proxyList:
-            chn = client.get_channel(i)
-            await chn.send(origin)
-        return
 
     # voice channel
     if msg.lower() == CMD_PF+"join" or msg.lower() == CMD_PF+"j":
@@ -167,74 +153,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 MusicModule.clearPlaylist()
                 await ctx.channel.send("清單已清除")
 
-    # get random waifu photo
-    elif msg == "這是我的翅膀" or msg.lower() == 'anipic':
-        dbUrl = SQL.queryUrl('這是我的翅膀')
-        if dbUrl != "":
-            try:
-                response = requests.get(dbUrl[0], timeout=10)
-                # Getting 307 redirected new url and send out
-                if response.history:
-                    await ctx.channel.send('認識一下😎')
-                    await ctx.channel.send(response.url)
-            except Exception as e:
-                log(e)
-        else:
-            await ctx.channel.send('出現異常錯誤啦~~')
-
-    # Get Technology Courses
-    elif msg.lower() == "geek":
-        # Split message
-        try:
-            # Determine the type of query
-            dbUrl = SQL.queryUrl('geek')
-            if dbUrl != "":
-                try:
-                    ressetting = RequestSetting()
-                    # Setting Headers
-                    ressetting.setHeaders(
-                        {
-                            "Content-Type": "application/json",
-                            "Origin": "https://time.geekbang.org",
-                            "Referer": "https://time.geekbang.org",
-                            "Host": "time.geekbang.org"
-                        }
-                    )
-
-                    response = requests.post(
-                        dbUrl[0], json={'page': 'pc_home'}, headers=ressetting.getHeaders(), timeout=10).json()
-
-                    # Response List: 8：直播（對應指令1） 1：小編推薦（對應指令2）
-                    if (rawMsg[1] == '1'):
-                        await ctx.channel.send('😎未來幾天的技術直播資訊')
-                        await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
-                        for list in response['data']['list'][8]['list']:
-                            await ctx.channel.send(
-                                '標體：' + str(list['title']) + '\n' +
-                                '描述：' + str(list['subtitle']) + '\n' +
-                                '連結：' + str(list['live_url']) + '\n'
-                            )
-                            await showImg(ctx, list['cover'])
-                    elif (rawMsg[1] == '2'):
-                        await ctx.channel.send('😏今日推薦')
-                        await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
-                        for list in response['data']['list'][1]['list']:
-                            await ctx.channel.send(
-                                '標體：' + str(list['main_title']) + '\n' +
-                                '描述：' + str(list['reason']) + '\n' +
-                                '連結：https://time.geekbang.org/dailylesson/detail/' +
-                                str(list['sku']) + '\n'
-                            )
-                            await showImg(ctx, list['cover'])
-                    else:
-                        await ctx.channel.send('目前只有1跟2而已哦~~例如可以輸入geek 1')
-                except Exception as e:
-                    log(e)
-            else:
-                await ctx.channel.send('出現異常錯誤啦~~')
-        except Exception:
-            await ctx.channel.send('我猜你是想要查詢geek的資訊，請輸入 geek 1\n 1：技術直播資訊 2：今日推薦～')
-
     # gifs
     elif (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
         await ctx.channel.send('A')
@@ -258,44 +176,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         sec = diff.seconds % 60
         await ctx.channel.send('https://tenor.com/view/hololive-%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96-hologra-%E3%83%9B%E3%83%AD%E3%81%90%E3%82%89-nakiri-ayame-gif-23864357')
         await ctx.channel.send("百鬼距離上次開台過了 %d天 %d小時 %d分 %d秒" % (diff.days, hr, minute, sec))
-
-    # get off counter
-    elif msg.lower() == CMD_PF + 'getoff':
-        y = time.localtime().tm_year
-        M = time.localtime().tm_mon
-        D = time.localtime().tm_mday
-        h = time.localtime().tm_hour
-        m = time.localtime().tm_min
-        s = time.localtime().tm_sec
-        nowDate = datetime(y, M, D, h, m, s)
-        off = datetime(y, M, D, 17, 30, 00)
-        diff = off-nowDate
-        imgSrc = SQL.queryUrl("getoff")
-        if diff.days < 0:
-            await ctx.channel.send("下班摟~")
-            if len(imgSrc) != 0:
-                await showImg(ctx, imgSrc[0], imgSrc[1])
-        else:
-            sec = diff.seconds
-            if sec >= 34200:
-                await ctx.channel.send("還沒上班拉")
-            else:
-                hh = sec / 3600
-                mm = (sec % 3600) / 60
-                ss = sec % 60
-                await ctx.channel.send("還有 %d小時%d分%d秒 下班~" % (hh, mm, ss))
-
-    # proxy chat mode
-    elif msg.lower() == CMD_PF + "proxy":
-        if len(rawMsg) == 2:
-            isProxyMode = True
-            cmd = rawMsg[1]
-            proxyList = SQL.queryProxyChat(cmd)
-            if len(proxyList) == 0:
-                isProxyMode = False
-                await ctx.channel.send("---指令錯誤---")
-            else:
-                await ctx.channel.send("---代理聊天已啟動---")
 
     # leetcode
     elif msg.lower() == CMD_PF + 'leet':
@@ -684,13 +564,3 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             # 增加代幣
             DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id)
     
-
-
-async def memeWarning(self, client, ctx, memo=None):
-    if ctx.author == self.user:
-        return
-    chn = client.get_channel(929379945346629642)
-    if memo is None or memo == '':
-        await chn.send('<@%s> 不要在梗圖版打字 <:gura_angry:922084439813673001>' % (ctx.author.id))
-    else:
-        await chn.send('<@%s> %s' % (ctx.author.id, memo))
