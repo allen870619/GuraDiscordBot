@@ -81,18 +81,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     msg = rawMsg[0]
     CMD_PF = SQL.queryPrefixURL(ctx.guild.id)
 
-    # proxy chat send
-    if isProxyMode and "proxy" in ctx.channel.name:
-        if origin == "!proxy":
-            isProxyMode = False
-            proxyList.clear()
-            await ctx.channel.send("---代理聊天已結束---")
-            return
-        for i in proxyList:
-            chn = client.get_channel(i)
-            await chn.send(origin)
-        return
-
     # voice channel
     if msg.lower() == CMD_PF+"join" or msg.lower() == CMD_PF+"j":
         await MusicModule.joining(ctx)
