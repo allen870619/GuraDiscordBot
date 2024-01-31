@@ -2,7 +2,6 @@ import discord
 import subprocess
 import LeetcodeCrawler as LCC
 import MusicModule
-import time
 from datetime import datetime
 # 抽卡
 from DrawCard import drawCard, cardPool, decomposeCard
@@ -10,7 +9,6 @@ import DrawSQL
 # 發圖片請求用
 import requests
 # Requests基本設定Class
-from RequestSetting import *
 import SQLConnect as SQL
 from Utils import log, colorToHex
 from PsutilSensor import getAllInfo
