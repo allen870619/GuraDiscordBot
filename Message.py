@@ -179,18 +179,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         await ctx.channel.send('https://tenor.com/view/hololive-%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96-hologra-%E3%83%9B%E3%83%AD%E3%81%90%E3%82%89-nakiri-ayame-gif-23864357')
         await ctx.channel.send("百鬼距離上次開台過了 %d天 %d小時 %d分 %d秒" % (diff.days, hr, minute, sec))
 
-    # proxy chat mode
-    elif msg.lower() == CMD_PF + "proxy":
-        if len(rawMsg) == 2:
-            isProxyMode = True
-            cmd = rawMsg[1]
-            proxyList = SQL.queryProxyChat(cmd)
-            if len(proxyList) == 0:
-                isProxyMode = False
-                await ctx.channel.send("---指令錯誤---")
-            else:
-                await ctx.channel.send("---代理聊天已啟動---")
-
     # leetcode
     elif msg.lower() == CMD_PF + 'leet':
         toSend = ""
