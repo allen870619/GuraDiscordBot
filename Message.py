@@ -179,32 +179,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         await ctx.channel.send('https://tenor.com/view/hololive-%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96-hologra-%E3%83%9B%E3%83%AD%E3%81%90%E3%82%89-nakiri-ayame-gif-23864357')
         await ctx.channel.send("百鬼距離上次開台過了 %d天 %d小時 %d分 %d秒" % (diff.days, hr, minute, sec))
 
-    # get off counter
-    elif msg.lower() == CMD_PF + 'getoff':
-        y = time.localtime().tm_year
-        M = time.localtime().tm_mon
-        D = time.localtime().tm_mday
-        h = time.localtime().tm_hour
-        m = time.localtime().tm_min
-        s = time.localtime().tm_sec
-        nowDate = datetime(y, M, D, h, m, s)
-        off = datetime(y, M, D, 17, 30, 00)
-        diff = off-nowDate
-        imgSrc = SQL.queryUrl("getoff")
-        if diff.days < 0:
-            await ctx.channel.send("下班摟~")
-            if len(imgSrc) != 0:
-                await showImg(ctx, imgSrc[0], imgSrc[1])
-        else:
-            sec = diff.seconds
-            if sec >= 34200:
-                await ctx.channel.send("還沒上班拉")
-            else:
-                hh = sec / 3600
-                mm = (sec % 3600) / 60
-                ss = sec % 60
-                await ctx.channel.send("還有 %d小時%d分%d秒 下班~" % (hh, mm, ss))
-
     # proxy chat mode
     elif msg.lower() == CMD_PF + "proxy":
         if len(rawMsg) == 2:
