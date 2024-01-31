@@ -155,59 +155,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 MusicModule.clearPlaylist()
                 await ctx.channel.send("清單已清除")
 
-    # Get Technology Courses
-    elif msg.lower() == "geek":
-        # Split message
-        try:
-            # Determine the type of query
-            dbUrl = SQL.queryUrl('geek')
-            if dbUrl != "":
-                try:
-                    ressetting = RequestSetting()
-                    # Setting Headers
-                    ressetting.setHeaders(
-                        {
-                            "Content-Type": "application/json",
-                            "Origin": "https://time.geekbang.org",
-                            "Referer": "https://time.geekbang.org",
-                            "Host": "time.geekbang.org"
-                        }
-                    )
-
-                    response = requests.post(
-                        dbUrl[0], json={'page': 'pc_home'}, headers=ressetting.getHeaders(), timeout=10).json()
-
-                    # Response List: 8：直播（對應指令1） 1：小編推薦（對應指令2）
-                    if (rawMsg[1] == '1'):
-                        await ctx.channel.send('😎未來幾天的技術直播資訊')
-                        await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
-                        for list in response['data']['list'][8]['list']:
-                            await ctx.channel.send(
-                                '標體：' + str(list['title']) + '\n' +
-                                '描述：' + str(list['subtitle']) + '\n' +
-                                '連結：' + str(list['live_url']) + '\n'
-                            )
-                            await showImg(ctx, list['cover'])
-                    elif (rawMsg[1] == '2'):
-                        await ctx.channel.send('😏今日推薦')
-                        await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
-                        for list in response['data']['list'][1]['list']:
-                            await ctx.channel.send(
-                                '標體：' + str(list['main_title']) + '\n' +
-                                '描述：' + str(list['reason']) + '\n' +
-                                '連結：https://time.geekbang.org/dailylesson/detail/' +
-                                str(list['sku']) + '\n'
-                            )
-                            await showImg(ctx, list['cover'])
-                    else:
-                        await ctx.channel.send('目前只有1跟2而已哦~~例如可以輸入geek 1')
-                except Exception as e:
-                    log(e)
-            else:
-                await ctx.channel.send('出現異常錯誤啦~~')
-        except Exception:
-            await ctx.channel.send('我猜你是想要查詢geek的資訊，請輸入 geek 1\n 1：技術直播資訊 2：今日推薦～')
-
     # gifs
     elif (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
         await ctx.channel.send('A')
