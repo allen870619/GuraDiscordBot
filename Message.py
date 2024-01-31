@@ -155,21 +155,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 MusicModule.clearPlaylist()
                 await ctx.channel.send("清單已清除")
 
-    # get random waifu photo
-    elif msg == "這是我的翅膀" or msg.lower() == 'anipic':
-        dbUrl = SQL.queryUrl('這是我的翅膀')
-        if dbUrl != "":
-            try:
-                response = requests.get(dbUrl[0], timeout=10)
-                # Getting 307 redirected new url and send out
-                if response.history:
-                    await ctx.channel.send('認識一下😎')
-                    await ctx.channel.send(response.url)
-            except Exception as e:
-                log(e)
-        else:
-            await ctx.channel.send('出現異常錯誤啦~~')
-
     # Get Technology Courses
     elif msg.lower() == "geek":
         # Split message
