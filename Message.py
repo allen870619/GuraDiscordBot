@@ -566,13 +566,3 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             # 增加代幣
             DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id)
     
-
-
-async def memeWarning(self, client, ctx, memo=None):
-    if ctx.author == self.user:
-        return
-    chn = client.get_channel(929379945346629642)
-    if memo is None or memo == '':
-        await chn.send('<@%s> 不要在梗圖版打字 <:gura_angry:922084439813673001>' % (ctx.author.id))
-    else:
-        await chn.send('<@%s> %s' % (ctx.author.id, memo))
