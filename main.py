@@ -6,7 +6,7 @@ import LeetcodeCrawler as LCC
 import asyncio
 from EnvData import TOKEN
 from PoisonSoup import getPoisonSoup
-from Utils import log
+from package.Utils.Utils import flush_log
 import SQLConnect as SQL
 import DrawSQL
 import ExpModule
@@ -31,15 +31,15 @@ class MyClient(discord.Client):
 
             for i in message_context.attachments:
                 caller += "\n\t [attachments] %s" % (i.url)
-            log(caller)
+            flush_log(caller)
         else:
             return
 
     # main func
     async def on_ready(self):
         for guild in self.guilds:
-            log("Logged on as %s @ %s" % (self.user, guild))
-        log("[SYS] %s is on ready." % (self.user))
+            flush_log("Logged on as %s @ %s" % (self.user, guild))
+        flush_log("[SYS] %s is on ready." % (self.user))
        
         # clear async tasks
         for task in asyncio.all_tasks():
@@ -48,20 +48,20 @@ class MyClient(discord.Client):
 
         # create tasks
         asyncio.create_task(self.run_schedule(), name="Custom: Leetcode")
-        log("[SYS] Set state")
+        flush_log("[SYS] Set state")
         state = discord.Activity(
             type=discord.ActivityType.competing,
             name="最可i的 Holo EN")
         await client.change_presence(status=discord.Status.online, activity=state)
         asyncio.create_task(self.update_server_status(), name="Custom: Server Info")
-        log("[SYS] Startup finished")
+        flush_log("[SYS] Startup finished")
             
         # update state
         state = discord.Activity(
                 type=discord.ActivityType.competing,
                 name="最可i的 Holo EN")
         await client.change_presence(status=discord.Status.online, activity=state)
-        log("[SYS] Startup finished")  
+        flush_log("[SYS] Startup finished")  
 
     # message reaction
     async def on_raw_reaction_add(self, message_context):
@@ -89,7 +89,6 @@ class MyClient(discord.Client):
             
     # message
     async def on_message(self, message_context):
-        print(message_context)
         # log
         self.msgLog(message_context)
 
@@ -129,7 +128,7 @@ class MyClient(discord.Client):
             logStr = "[ERROR]", event, args[0]
         except:
             logStr = "[ERROR]", event
-        log(logStr)
+        flush_log(logStr)
 
     # voice
     async def on_voice_state_update(self, member, _, after):
@@ -138,7 +137,7 @@ class MyClient(discord.Client):
 
     # leet schedule
     async def run_schedule(self):
-        log("[SYS] Leetcode crawler activated")
+        flush_log("[SYS] Leetcode crawler activated")
         while True:
             now = datetime.datetime.now()
             if now.strftime("%H:%M") == "08:00":

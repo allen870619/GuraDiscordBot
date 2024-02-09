@@ -1,5 +1,5 @@
 import discord
-from Utils import log
+from package.Utils.Utils import flush_log
 from discord import voice_client
 from discord.player import FFmpegPCMAudio
 from youtube_dl import YoutubeDL
@@ -24,7 +24,7 @@ async def joining(ctx):
             is_playing = False
     except Exception as e:
         # trigger when channel is None, meaning that user isn't in voice channel
-        log(e)
+        flush_log(e)
         await ctx.channel.send("找個地方聽我的聲音吧ˊˇˋ")
 
 async def leaving(ctx):
@@ -45,13 +45,13 @@ async def leaving(ctx):
             vc.stop()
             is_playing = False
     except Exception as e:
-        log(e)
+        flush_log(e)
 
     # disconnect
     try:
         await vc.disconnect(force=True)
     except Exception as e:
-        log(e)
+        flush_log(e)
     vc = None
 
 def playSource(url):

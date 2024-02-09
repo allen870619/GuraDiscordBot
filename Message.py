@@ -10,7 +10,7 @@ import DrawSQL
 import requests
 # Requests基本設定Class
 import SQLConnect as SQL
-from Utils import log, colorToHex
+from package.Utils.Utils import flush_log, hex_color_string_to_int
 from PsutilSensor import getAllInfo
 # 雞湯
 from PoisonSoup import getPoisonSoup
@@ -28,7 +28,7 @@ proxyList = []
 
 
 async def showImg(ctx, targetUrl, color=None):
-    embed = discord.Embed(color=colorToHex(color))
+    embed = discord.Embed(color=hex_color_string_to_int(color))
     embed.set_image(url=targetUrl)
     await ctx.channel.send(embed=embed)
 
@@ -38,7 +38,7 @@ async def showImg(ctx, targetUrl, color=None):
 def embedCreator(title, description, color=None, authorName=None, authorUrl=None, thumbnailUrl=None, imageUrl=None):
     embed = discord.Embed(
         title=title,
-        colour=discord.Colour(colorToHex(color)),
+        colour=discord.Colour(hex_color_string_to_int(color)),
         description=description
         # url="https://www.google.com", # this is the link for title
     )
@@ -112,7 +112,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 else:
                     MusicModule.playSource(SQL.queryAlarmUrl("4"))
         except Exception as e:
-            log(e)
+            flush_log(e)
             await ctx.channel.send("發生錯誤ＱwＱ")
 
     elif msg.lower() == CMD_PF+"pause" or msg.lower() == CMD_PF+"pau":
@@ -120,7 +120,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             if MusicModule.is_playing:
                 MusicModule.vc.pause()
         except Exception:
-            log("Nothing to pause")
+            flush_log("Nothing to pause")
 
     elif msg.lower() == CMD_PF+"next":
         try:
@@ -128,7 +128,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 MusicModule.vc.stop()
                 MusicModule.is_playing = False
         except Exception:
-            log("Nothing to next")
+            flush_log("Nothing to next")
 
     elif msg.lower() == CMD_PF+"stop":
         try:
@@ -137,7 +137,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 MusicModule.vc.stop()
                 MusicModule.is_playing = False
         except Exception:
-            log("Nothing to stop")
+            flush_log("Nothing to stop")
 
     elif msg.lower() == CMD_PF+"list":
         if len(rawMsg) == 1:

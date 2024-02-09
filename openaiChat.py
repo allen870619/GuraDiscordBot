@@ -1,7 +1,7 @@
 import openai
 import dotenv
 from EnvData import OPENAI_API_KEY
-from Utils import log
+from package.Utils.Utils import flush_log
 
 dotenv.load_dotenv()
 openai.api_key = OPENAI_API_KEY
@@ -53,6 +53,6 @@ def openai_gpt_chat(msgToSend: str, user_id):
             message_list.pop(0)
             current_token -= token_list.pop(0)
     except Exception as e:
-        log(e)
+        flush_log(e)
         return "伺服器涼了 { 6 Д 9 } 請再試一次"
     return content
