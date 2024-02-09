@@ -11,7 +11,7 @@ import SQLConnect as SQL
 import DrawSQL
 import ExpModule
 
-class MyClient(discord.Client):
+class DiscordAppClient(discord.Client):
     # message log to console
     def msgLog(self, message_context, isEdited=False):
         # log
@@ -187,5 +187,6 @@ intents.members = True
 intents.guilds = True
 intents.message_content = True
 intents.presences = True
-client = MyClient(intents=intents)
+
+client = DiscordAppClient(intents=intents)
 client.run(TOKEN)
