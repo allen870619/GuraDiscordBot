@@ -12,7 +12,7 @@ jobs:
         run: |
           echo "DB_URL=114.35.235.182" >> .env
           echo "DISCORD_TOKEN=${{secrets.DISCORD_TOKEN}}" >> .env
-          echo "DB_DATABASE=DB_DATABASE" >> .env
+          echo "DB_DATABASE=DiscordBot" >> .env
           echo "DB_USR=discordDB" >> .env
           echo "DB_PW=${{secrets.DISCORD_DB_PASSWORD}}" >> .env
           echo "OPENAI_API_KEY=${{secrets.OPENAI_API_KEY}}" >> .env
