@@ -17,5 +17,9 @@ jobs:
           echo "DB_PW=${{secrets.DISCORD_DB_PASSWORD}}" >> .env
       - name: Docker build
         run: docker build -t allen870619/gura_discord_bot .
-      - name: Docker remain thing
-        run: bash runDocker.sh
+      - name: Docker startup container
+        run: |
+          docker stop gura
+          docker rm gura
+          docker create --name gura allen870619/gura_discord_bot 
+          docker start gura
