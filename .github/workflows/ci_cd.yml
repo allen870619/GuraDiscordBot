@@ -15,6 +15,7 @@ jobs:
           echo "DB_DATABASE=DB_DATABASE" >> .env
           echo "DB_USR=discordDB" >> .env
           echo "DB_PW=${{secrets.DISCORD_DB_PASSWORD}}" >> .env
+          echo "OPENAI_API_KEY=${{secrets.OPENAI_API_KEY}}" >> .env
       - name: Docker build
         run: docker build -t allen870619/gura_discord_bot .
       - name: Docker startup container
