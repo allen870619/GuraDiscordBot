@@ -8,19 +8,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-    #   - name: Kill current service
-    #     run: |
-    #         pgrep -fi main.py
-    #         if [ $? -eq 0 ];
-    #         then
-    #           echo "Killing the previous process"
-    #           kill -9 $(pgrep -fi main.py)
-    #         else
-    #           echo "No previous process exists."
-    #         fi
-      - name: Install dependencies
+      - name: Create .env file
         run: |
-            pip3 install -r requirments.txt
-      - name: run main code
-        run: |
-            nohup python3 main.py prod > chat_$(date --iso-8601=seconds).log &
+          echo "DB_URL=114.35.235.182" >> .env
+          echo "DISCORD_TOKEN=${{secrets.DISCORD_TOKEN}}" >> .env
+          echo "DB_DATABASE=DB_DATABASE" >> .env
+          echo "DB_USR=discordDB" >> .env
+          echo "DB_PW=${{secrets.DISCORD_DB_PASSWORD}}" >> .env
+      - name: Docker build
+        run: docker build -t allen870619/gura_discord_bot .
+      - name: Docker remain thing
+        run: bash runDocker.sh
