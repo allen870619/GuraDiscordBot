@@ -1,0 +1,21 @@
+name: "Docker build"
+
+on:
+  push:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Create .env file
+        run: |
+          echo "DB_URL=114.35.235.182" >> .env
+          echo "DISCORD_TOKEN=${{secrets.DISCORD_TOKEN}}" >> .env
+          echo "DB_DATABASE=DiscordBot" >> .env
+          echo "DB_USR=discordDB" >> .env
+          echo "DB_PW=${{secrets.DISCORD_DB_PASSWORD}}" >> .env
+          echo "OPENAI_API_KEY=${{secrets.OPENAI_API_KEY}}" >> .env
+      - name: Docker build
+        run: docker build -t allen870619/gura_discord_bot .
