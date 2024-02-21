@@ -11,7 +11,7 @@ from Utils import log
 import SQLConnect as SQL
 import DrawSQL
 import ExpModule
-
+import traceback
 
 class MyClient(discord.Client):
     # message log to console
@@ -154,10 +154,8 @@ class MyClient(discord.Client):
             
     # error
     async def on_error(self, event, *args, **kwargs):
-        try:
-            logStr = "[ERROR]", event, args[0]
-        except:
-            logStr = "[ERROR]", event
+        traceback_message = traceback.format_exc()
+        logStr = "[ERROR]", traceback_message 
         log(logStr)
 
     # voice
