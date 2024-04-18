@@ -104,12 +104,7 @@ class DiscordAppClient(discord.Client):
     #     except:
     #         logStr = "[ERROR]", event
     #     flush_log(logStr)
-
-    # voice
-    async def on_voice_state_update(self, member, _, after):
-        if member == self.user and after.channel is None:
-            await MusicModule.leaving(None)
-
+  
     # leet schedule
     async def run_schedule(self):
         flush_log("[SYS] Leetcode crawler activated")
