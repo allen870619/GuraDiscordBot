@@ -30,7 +30,7 @@ class DiscordAppClient(discord.Client):
         await client.change_presence(status=discord.Status.online, activity=state)
 
         # tasks
-        asyncio.create_task(self.run_schedule(), name="Custom: Leetcode")
+        asyncio.create_task(self.run_daily_schedule_service(), name="Custom: Leetcode")
         asyncio.create_task(self.update_server_status(), name="Custom: Server Info")
         flush_log("[SYS] Startup finished")
 
@@ -105,16 +105,17 @@ class DiscordAppClient(discord.Client):
     #         logStr = "[ERROR]", event
     #     flush_log(logStr)
   
-    # leet schedule
-    async def run_schedule(self):
-        flush_log("[SYS] Leetcode crawler activated")
+    # daily schedule
+    async def run_daily_schedule_service(self):
+        flush_log("[SYS] Daily scheduler activated")
         while True:
             now = datetime.datetime.now()
             if now.strftime("%H:%M") == "08:00":
                 await self.leet_schedule()
                 await self.poison_soup()
-                DrawSQL.refreshFreeDraw()
-                await asyncio.sleep(60 * 60 * 24 - 60)  # preserve for 1 mins
+                
+                current_sec = int(now.strftime("%S"))
+                await asyncio.sleep(60 * 60 * 24 - 60 + current_sec)  # preserve for 1 mins
             await asyncio.sleep(1)
 
     async def leet_schedule(self):
