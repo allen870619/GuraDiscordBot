@@ -120,7 +120,7 @@ class DiscordAppClient(discord.Client):
 
     async def publish_leetcode(self):
         question = LCC.dailyProblem()
-        
+
         channel_list = SQL.queryLeetChn()
         for channel_id in channel_list:
             channel = client.get_channel(int(channel_id))
@@ -140,7 +140,7 @@ class DiscordAppClient(discord.Client):
         while True:
             await self.change_date()
             await self.set_online_status()
-            await asyncio.sleep(30)
+            await asyncio.sleep(60)
         
     async def change_date(self):
         chn = client.get_channel(1050243994111709234)
