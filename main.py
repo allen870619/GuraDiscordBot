@@ -111,20 +111,20 @@ class DiscordAppClient(discord.Client):
         while True:
             now = datetime.datetime.now()
             if now.strftime("%H:%M") == "08:00":
-                await self.leet_schedule()
+                await self.publish_leetcode()
                 await self.poison_soup()
                 
                 current_sec = int(now.strftime("%S"))
                 await asyncio.sleep(60 * 60 * 24 - 60 + current_sec)  # preserve for 1 mins
             await asyncio.sleep(1)
 
-    async def leet_schedule(self):
-        toSend = LCC.dailyProblem()
-        list = SQL.queryLeetChn()
-        for i in list:
-            chn = client.get_channel(int(i))
-            if chn != None:
-                await chn.send(toSend)
+    async def publish_leetcode(self):
+        question = LCC.dailyProblem()
+        channel_list = SQL.queryLeetChn()
+        for channel_id in channel_list:
+            channel = client.get_channel(int(channel_id))
+            if channel != None:
+                await channel.send(question)
 
     async def poison_soup(self):
         soup = f"---本日毒雞湯---\n{getPoisonSoup()}\n\n共勉之"
