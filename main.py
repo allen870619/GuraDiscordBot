@@ -1,6 +1,6 @@
 import discord
 import datetime
-import Message as Msg
+# import Message as Msg
 import MusicModule
 import LeetcodeCrawler as LCC
 import asyncio
@@ -17,29 +17,22 @@ class DiscordAppClient(discord.Client):
     async def on_ready(self):
         for guild in self.guilds:
             flush_log("Logged on as %s @ %s" % (self.user, guild))
-        flush_log("[SYS] %s is on ready." % (self.user))
-       
+
         # clear async tasks
         for task in asyncio.all_tasks():
             if "Custom" in task.get_name():
                 task.cancel()
 
-        # create tasks
-        asyncio.create_task(self.run_schedule(), name="Custom: Leetcode")
-        flush_log("[SYS] Set state")
+        # update state
         state = discord.Activity(
             type=discord.ActivityType.competing,
             name="最可i的 Holo EN")
         await client.change_presence(status=discord.Status.online, activity=state)
+
+        # tasks
+        asyncio.create_task(self.run_schedule(), name="Custom: Leetcode")
         asyncio.create_task(self.update_server_status(), name="Custom: Server Info")
         flush_log("[SYS] Startup finished")
-            
-        # update state
-        state = discord.Activity(
-                type=discord.ActivityType.competing,
-                name="最可i的 Holo EN")
-        await client.change_presence(status=discord.Status.online, activity=state)
-        flush_log("[SYS] Startup finished")  
 
     # message reaction
     async def on_raw_reaction_add(self, message_context):
@@ -84,11 +77,11 @@ class DiscordAppClient(discord.Client):
                         await chn.send("Congrats! <@%d> has upgraded to Level %d!" % (message_context.author.id, exp[2]+1))
 
         # 觸發區域限制
-        if message_context.guild.id == 273814671985999873:  # 一言堂用
-            if "指令" in message_context.channel.name:
-                await Msg.messageReact(self, client, message_context)
-        else:
-            await Msg.messageReact(self, client, message_context)
+        # if message_context.guild.id == 273814671985999873:  # 一言堂用
+        #     if "指令" in message_context.channel.name:
+        #         await Msg.messageReact(self, client, message_context)
+        # else:
+        #     await Msg.messageReact(self, client, message_context)
 
     # edit message
     async def on_message_edit(self, _, message_context):
@@ -98,19 +91,19 @@ class DiscordAppClient(discord.Client):
             flush_log(log_message)
 
         # 觸發區域限制
-        if message_context.guild.id == 273814671985999873:  # 一言堂用
-            if "指令" in message_context.channel.name:
-                await Msg.messageReact(self, client, message_context)
-        else:
-            await Msg.messageReact(self, client, message_context, isFromEdit=True)
+        # if message_context.guild.id == 273814671985999873:  # 一言堂用
+        #     if "指令" in message_context.channel.name:
+        #         await Msg.messageReact(self, client, message_context)
+        # else:
+        #     await Msg.messageReact(self, client, message_context, isFromEdit=True)
             
     # error
-    async def on_error(self, event, *args, **kwargs):
-        try:
-            logStr = "[ERROR]", event, args[0]
-        except:
-            logStr = "[ERROR]", event
-        flush_log(logStr)
+    # async def on_error(self, event, *args, **kwargs):
+    #     try:
+    #         logStr = "[ERROR]", event, args[0]
+    #     except:
+    #         logStr = "[ERROR]", event
+    #     flush_log(logStr)
 
     # voice
     async def on_voice_state_update(self, member, _, after):
@@ -144,6 +137,7 @@ class DiscordAppClient(discord.Client):
             await chn.send(soup)
                     
     async def update_server_status(self):
+        flush_log("[SYS] Server status updater activated")
         while True:
             await self.change_date()
             await self.set_online_status()
