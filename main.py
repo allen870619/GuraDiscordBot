@@ -6,35 +6,13 @@ import LeetcodeCrawler as LCC
 import asyncio
 from EnvData import TOKEN
 from PoisonSoup import getPoisonSoup
-from package.Utils.Utils import flush_log
+from package.Utils.Utils import flush_log, generate_log
 import SQLConnect as SQL
 import DrawSQL
 import ExpModule
 
+
 class DiscordAppClient(discord.Client):
-    # message log to console
-    def msgLog(self, message_context, isEdited=False):
-        # log
-        if message_context.author != self.user:
-            caller = "%s" % (message_context.author)
-            if message_context.author.nick != None:
-                caller += "(%s)" % (message_context.author.nick)
-            editMark = ""
-            if isEdited:
-                editMark = "[Edited] "
-            if message_context.content != '':
-                caller += " @ %s/%s: %s%s" % (message_context.guild,
-                                              message_context.channel.name, editMark, message_context.content)
-            else:
-                caller += " @ %s/%s %s" % (message_context.guild,
-                                           message_context.channel.name, editMark)
-
-            for i in message_context.attachments:
-                caller += "\n\t [attachments] %s" % (i.url)
-            flush_log(caller)
-        else:
-            return
-
     # main func
     async def on_ready(self):
         for guild in self.guilds:
@@ -89,8 +67,10 @@ class DiscordAppClient(discord.Client):
             
     # message
     async def on_message(self, message_context):
-        # log
-        self.msgLog(message_context)
+        if message_context.author != self.user:
+            log_message = generate_log(message_context, False)
+            print(log_message)
+            flush_log(log_message)
 
         # 經驗值系統 (beta)
         if message_context.author.id != 879980183522779137 and message_context.author.id != 950919884802510890:
@@ -113,7 +93,9 @@ class DiscordAppClient(discord.Client):
     # edit message
     async def on_message_edit(self, _, message_context):
         # log
-        self.msgLog(message_context, True)   
+        if message_context.author != self.user:
+            log_message = generate_log(message_context, True)
+            flush_log(log_message)
 
         # 觸發區域限制
         if message_context.guild.id == 273814671985999873:  # 一言堂用
