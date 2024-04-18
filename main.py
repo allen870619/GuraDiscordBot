@@ -143,18 +143,18 @@ class DiscordAppClient(discord.Client):
             await asyncio.sleep(60)
         
     async def change_date(self):
-        chn = client.get_channel(1050243994111709234)
+        channel = client.get_channel(1050243994111709234)
         date = datetime.datetime.now().strftime("%Y年%m月%d日")
-        if chn.name != f"{date}":
-            await chn.edit(name=f"{date}")
+        if channel.name != f"{date}":
+            await channel.edit(name=f"{date}")
         
     async def set_online_status(self):
         guild = client.get_guild(870855015676391505)
-        chn = client.get_channel(1050252285936140349)
-        onlineFilter = filter(lambda fx: fx.status != discord.Status.offline, guild.members)
-        online = list(onlineFilter)
-        if chn.name != f"上線人數: {len(online)}":
-            await chn.edit(name=f"上線人數: {len(online)}")
+        channel = client.get_channel(1050252285936140349)
+        online_filter = filter(lambda fx: fx.status != discord.Status.offline, guild.members)
+        online_list = list(online_filter)
+        if channel.name != f"上線人數: {len(online_list)}":
+            await channel.edit(name=f"上線人數: {len(online_list)}")
 
 # start client here
 intents = discord.Intents.default()
