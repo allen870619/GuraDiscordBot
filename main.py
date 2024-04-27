@@ -8,6 +8,7 @@ from PoisonSoup import getPoisonSoup
 from package.Utils.Utils import flush_log, generate_log
 import SQLConnect as SQL
 import ExpModule
+import Message as message
 
 
 class DiscordAppClient(discord.Client):
@@ -75,11 +76,11 @@ class DiscordAppClient(discord.Client):
                         await chn.send("Congrats! <@%d> has upgraded to Level %d!" % (message_context.author.id, exp[2]+1))
 
         # 觸發區域限制
-        # if message_context.guild.id == 273814671985999873:  # 一言堂用
-        #     if "指令" in message_context.channel.name:
-        #         await Msg.messageReact(self, client, message_context)
-        # else:
-        #     await Msg.messageReact(self, client, message_context)
+        if message_context.guild.id == 273814671985999873:  # 一言堂用
+            if "指令" in message_context.channel.name:
+                await message.messageReact(self, client, message_context)
+        else:
+            await message.messageReact(self, client, message_context)
 
     # edit message
     async def on_message_edit(self, _, message_context):
@@ -89,11 +90,11 @@ class DiscordAppClient(discord.Client):
             flush_log(log_message)
 
         # 觸發區域限制
-        # if message_context.guild.id == 273814671985999873:  # 一言堂用
-        #     if "指令" in message_context.channel.name:
-        #         await Msg.messageReact(self, client, message_context)
-        # else:
-        #     await Msg.messageReact(self, client, message_context, isFromEdit=True)
+        if message_context.guild.id == 273814671985999873:  # 一言堂用
+            if "指令" in message_context.channel.name:
+                await message.messageReact(self, client, message_context)
+        else:
+            await message.messageReact(self, client, message_context, isFromEdit=True)
             
     # error
     # async def on_error(self, event, *args, **kwargs):

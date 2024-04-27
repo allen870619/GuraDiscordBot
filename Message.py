@@ -7,7 +7,7 @@ import requests
 # Requests基本設定Class
 import SQLConnect as SQL
 from package.Utils.Utils import hex_color_string_to_int
-from PsutilSensor import getAllInfo
+# from PsutilSensor import getAllInfo
 # 雞湯
 from PoisonSoup import getPoisonSoup
 # openai
@@ -123,8 +123,8 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             await client.change_presence(status=discord.Status.online, activity=state)
 
     # computer info
-    elif msg.lower() == CMD_PF + 'status':
-        await ctx.channel.send(getAllInfo())
+    # elif msg.lower() == CMD_PF + 'status':
+        # await ctx.channel.send(getAllInfo())
 
     # run script
     elif msg.lower() == CMD_PF + "sh":
@@ -203,10 +203,10 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         str = f"<@{ctx.author.id}> \n{txt}"
         await ctx.channel.send(str)
     
-    # openai chat
-    elif (ctx.channel.id == 1081213613274050620 or ctx.channel.id == 1127251556690034738) and len(origin) > 0:
-        resp = send_chat(origin, user_id=ctx.author.id)
-        await ctx.channel.send(resp)
+    # openai chat 
+    elif (ctx.channel.id == 1081213613274050620 or ctx.channel.id == 1127251556690034738) and len(origin) > 0:  
+        response_text = send_chat(origin, user_id=ctx.author.id)
+        await ctx.channel.send(response_text)
 
     # help
     elif msg == CMD_PF + '功能' or msg.lower() == CMD_PF + 'func' or msg.lower() == CMD_PF + 'help':

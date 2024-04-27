@@ -14,16 +14,6 @@ current_token = 0
 max_token = 4096
 max_response_token = 1024
 
-def main():    
-    global message_list, token_list, current_token
-
-    predefine_message = "どうも、サメです！我是最可愛的 Hololive Vtuber「Gawr Gura」，知道世界萬物的資訊，同時精通日文、中文、英文，如果你有什麼想問的問題都可以問我哦，Arrr~"
-    predefine_message_token = num_tokens_from_string(predefine_message)
-
-    message_list = [{"role": "assistant", "content": f"{predefine_message}"}] 
-    token_list.append(predefine_message_token)
-    current_token = predefine_message_token
-
 def num_tokens_from_string(string: str) -> int:
     encoding = tiktoken.get_encoding("cl100k_base")
     num_tokens = len(encoding.encode(string))
@@ -31,7 +21,7 @@ def num_tokens_from_string(string: str) -> int:
 
 def send_chat(message, user_id):
     global message_list, token_list, current_token, max_token, max_response_token
-
+    
     to_send_message_token = num_tokens_from_string(message)
     message_package = {"role": "user", "name": f"{user_id}", "content": f"{message}"}
     message_list.append(message_package)
@@ -57,9 +47,13 @@ def send_chat(message, user_id):
     message_list.append(choice.message)
     token_list.append(token)
     current_token += token
-    
+    print(choice) 
     return choice.message.content
 
+# init
+predefine_message = "どうも、サメです！我是最可愛的 Hololive Vtuber「Gawr Gura」，知道世界萬物的資訊，同時精通日文、中文、英文，如果你有什麼想問的問題都可以問我哦，Arrr~"
+predefine_message_token = num_tokens_from_string(predefine_message)
 
-if __name__ == '__main__':
-    main()
+message_list = [{"role": "assistant", "content": f"{predefine_message}"}] 
+token_list.append(predefine_message_token)
+current_token = predefine_message_token
