@@ -25,14 +25,14 @@ def dailyProblemAC():
     response["question"]["acRate"]))
     return result
 
-def randProblem():
+def fetch_random_problem():
     # get title
-    data = {"query":"\n    query randomQuestion($categorySlug: String, $filters: QuestionListFilterInput) {\n  randomQuestion(categorySlug: $categorySlug, filters: $filters) {\n    titleSlug\n  }\n}\n    ","variables":{"categorySlug":"","filters":{}}}
+    data = {"query":"query randomQuestion($categorySlug: String, $filters: QuestionListFilterInput) { randomQuestion(categorySlug: $categorySlug, filters: $filters) { titleSlug } }","variables":{"categorySlug":"","filters":{}}}
     response = requests.post("https://leetcode.com/graphql/",json=data).json()
     problem = response["data"]["randomQuestion"]["titleSlug"]
 
     # get info
-    data = {"operationName":"questionData","variables":{"titleSlug":problem},"query":"query questionData($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n questionFrontendId\n    title\n  titleSlug\n  isPaidOnly\n   difficulty\n   acRate\n}\n}\n"}
+    data = {"operationName":"questionData","variables":{"titleSlug":problem},"query":"query questionData($titleSlug: String!) { question(titleSlug: $titleSlug) { questionFrontendId title titleSlug isPaidOnly difficulty acRate}}"}
     response = requests.post("https://leetcode.com/graphql/",json=data).json()["data"]
     result = ("%s. %s  (%s, AC %.2f%%)\nhttps://leetcode.com/problems/%s"%(response["question"]["questionFrontendId"],
     response["question"]["title"],
@@ -40,3 +40,8 @@ def randProblem():
     response["question"]["acRate"],
     response["question"]["titleSlug"]))
     return result
+
+
+# print(dailyProblemAC())
+
+print(dailyProblem())
