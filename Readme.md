@@ -7,15 +7,14 @@
 
 ## 目前功能
 1. 訊息模組: Message.py
-2. 音樂模組: MusicModule.py
 3. Leetcode爬蟲發題目: LeetcodeCrawler.py
 
 ## 引用核心模組
 * Discord.py
 * EnvData
 * ffmpeg
-* youtube-dl
-* psutil
+<!-- * youtube-dl -->
+<!-- * psutil -->
 
 \* 安裝
 ```
@@ -33,9 +32,6 @@ python3 main.py
 負責處理指令的模組, 有filter掛在main底下
 主要有call人, 發圖片, 音樂控制指令判讀等
 
-### MusicModule
-音樂處理模組, 有Gura鬧鐘 跟 YT音樂播放
-
 ### EnvData
 放Token, 路徑等等重要資料, 請同時參考.env.example
 
@@ -51,6 +47,3 @@ python3 main.py
 ```
 !help (前綴請根據DB, 預設為!)
 ```
-
-## Database
-需要測試端請來信索取:)
