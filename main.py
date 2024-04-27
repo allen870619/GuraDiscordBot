@@ -8,7 +8,6 @@ from EnvData import TOKEN
 from PoisonSoup import getPoisonSoup
 from package.Utils.Utils import flush_log, generate_log
 import SQLConnect as SQL
-import DrawSQL
 import ExpModule
 
 

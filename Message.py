@@ -3,9 +3,6 @@ import subprocess
 import LeetcodeCrawler as LCC
 import MusicModule
 from datetime import datetime
-# 抽卡
-from DrawCard import drawCard, cardPool, decomposeCard
-import DrawSQL
 # 發圖片請求用
 import requests
 # Requests基本設定Class
@@ -268,141 +265,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     elif msg.lower() == CMD_PF + 'heart':
         await ctx.channel.send("幫古拉按個星星吧 <:gura_peek_wall:980739498474348595>\nhttps://github.com/allen870619/GuraDiscordBot")
 
-    # 抽卡機
-    # 抽卡
-    elif rawMsg[0].lower() == CMD_PF + 'draw':
-        # get desire draw time
-        if len(rawMsg) == 1:
-            times = 1
-        else:
-            try:
-                times = int(rawMsg[1])
-                if times > 50: 
-                    times = 50
-            except Exception:
-                times = 1
-
-        # calculate coins and free
-        actualDraw = 0
-        containFreeDraw = False
-        coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
-        free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
-        allFree = free
-        for _ in range(0, times):
-            if coin < DrawSQL.drawCost and free == 0:
-                break
-            actualDraw += 1
-            hasFree = free > 0
-            if hasFree:
-                free -= 1
-            else:
-                coin -= DrawSQL.drawCost
-            DrawSQL.drawConsume(ctx.author.id, ctx.guild.id, hasFree)
-
-        # discount when draw 10 cards
-        costDraw = actualDraw - allFree
-        if actualDraw >= 10 and costDraw > 0:
-            for _ in range(0, int(costDraw / 10)):
-                DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id, 5)
-
-        # send message
-        if actualDraw > 0:
-            cards = drawCard(ctx.author.id, ctx.guild.id, actualDraw)
-
-            await ctx.channel.send('抽卡 %d 張   <:gura_fascinate:922084439822053377>' % (actualDraw))
-            cardAlert = ""
-            for index, card in enumerate(cards):
-                if card.id == 1:
-                    allowed_mentions = discord.AllowedMentions(everyone=True)
-                    await ctx.channel.send(content="@everyone 全員注意!!", allowed_mentions=allowed_mentions)
-                    await ctx.channel.send('恭喜<@%s> 抽到 鯊魚本人\n%s卡「 *%s* 」!!!!!!' % (ctx.author.id, card.rarityData.name, card.name))
-                else:
-                    cardAlert += "恭喜<@%s> 抽到 %s卡「 *%s* 」\n" % (
-                        ctx.author.id, card.rarityData.name, card.name)
-                if (index+1) % 10 == 0 and cardAlert != "":
-                    await ctx.channel.send(cardAlert)
-                    cardAlert = ""
-            if cardAlert != "":
-                await ctx.channel.send(cardAlert)
-        else:
-            await ctx.channel.send("代幣不足 <:gura_cry:922084439465553920>")
-
-    # 卡池
-    elif msg.lower() == CMD_PF + 'drawpool':
-        pool = cardPool()
-        embedList = []
-        colorList = ["#ec695e", "#ab5d75", "#6a518c", "#2a46a4"]
-        colorIndex = 0
-        for data in pool:
-            rarity = data[0]
-            cardList = data[1]
-
-            # form up text
-            title = "%s 卡池 (%s%%)\n分解 %d 金幣" % (
-                rarity.name, rarity.probability, rarity.decompose)
-            strCardList = ""
-            for card in cardList:
-                strCardList += "%d. %s \n -> %s%%\n" % (card.id,
-                                                        card.name,
-                                                        card.probability)
-
-            embedList.append(embedCreator(
-                title, strCardList, colorList[colorIndex]))
-            colorIndex += 1
-
-        for i in embedList:
-            await ctx.channel.send(embed=i)
-
-    # 代幣餘額
-    elif msg.lower() == CMD_PF + "drawcoin":
-        coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
-        free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
-        await ctx.channel.send("<@%d> 剩餘代幣: %d, 免費次數: %d" % (ctx.author.id, coin, free))
-
-    # 查詢自己有的卡
-    elif msg.lower() == CMD_PF + "mycard":
-        list = DrawSQL.getUsrCardList(ctx.author.id, ctx.guild.id)
-        if len(list) == 0:
-            await ctx.channel.send("<@%d>卡片空空如也 0.0" % (ctx.author.id))
-            return
-
-        allData = "<@%d> 持有的卡片\n" % (ctx.author.id)
-        for data in list:
-            # form up text
-            allData += "-----%s 卡-----\n" % (data[0]["rarity_name"])
-            for card in data:
-                allData += "%s. %s : %s張\n" % (card["card_id"],
-                                               card["card_name"],
-                                               card["card_mount"])
-            allData += "\n"
-        await ctx.channel.send(allData)
-
-    # 分解卡片
-    elif rawMsg[0].lower() == CMD_PF + "decomp":
-        if len(rawMsg) == 3:
-            try:
-                id = int(rawMsg[1])
-                count = int(rawMsg[2])
-                isPass = True
-            except e:
-                isPass = False
-        elif len(rawMsg) == 2:
-            try:
-                id = int(rawMsg[1])
-                count = 1
-                isPass = True
-            except e:
-                isPass = False
-        else:
-            await ctx.channel.send("指令錯誤 <:gura_angry:922084439813673001>")
-            isPass = False
-        if isPass:
-            result = decomposeCard(ctx.author.id, ctx.guild.id, id, count)
-            if result is None:
-                await ctx.channel.send("你沒有這張卡 <:gura_cry:922084439465553920>")
-            else:
-                await ctx.channel.send("<@%d> 分解%d張卡, 獲得%d枚金幣" % (ctx.author.id, result[0], result[1]))
-
     # thxhf
     elif msg.lower() == CMD_PF + 'thxhf':
         count = SQL.queryThxHf(ctx.author.id, ctx.guild.id)
@@ -489,20 +351,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             color="#6582c9",
         )
 
-        # Draw
-        drawCardDesc = f'''
-        # {CMD_PF}draw [time=1] 抽卡[次數, 最多10張]
-        # {CMD_PF}drawPool 卡池資訊
-        # {CMD_PF}drawCoin 查詢剩餘代幣
-        # {CMD_PF}mycard 查詢持有的卡片
-        # {CMD_PF}decomp <id> [count=1] 分解持有的卡片
-        '''
-        drawCardHint = embedCreator(
-            title="---血統認證機(開發中)---",
-            description=drawCardDesc,
-            color="#819dd4",
-        )
-
         # Others
         otherDesc = f'''
         # {CMD_PF}status 主機狀態
@@ -536,7 +384,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         await ctx.channel.send(embed=intro)
         await ctx.channel.send(embed=leetcode)
         await ctx.channel.send(embed=music)
-        await ctx.channel.send(embed=drawCardHint)
         await ctx.channel.send(embed=other)
         await ctx.channel.send(embed=pic)    
     else:
@@ -558,7 +405,4 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 await showImg(ctx, dbUrl[0], dbUrl[1])
             else:
                 await ctx.channel.send(dbUrl[0])
-        else:
-            # 增加代幣
-            DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id)
     
