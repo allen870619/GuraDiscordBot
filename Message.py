@@ -1,23 +1,17 @@
 import discord
 import subprocess
 import LeetcodeCrawler as LCC
-import MusicModule
-import time
 from datetime import datetime
-# 抽卡
-from DrawCard import drawCard, cardPool, decomposeCard
-import DrawSQL
 # 發圖片請求用
 import requests
 # Requests基本設定Class
-from RequestSetting import *
 import SQLConnect as SQL
-from Utils import log, colorToHex
-from PsutilSensor import getAllInfo
+from package.Utils.Utils import hex_color_string_to_int
+# from PsutilSensor import getAllInfo
 # 雞湯
 from PoisonSoup import getPoisonSoup
 # openai
-from openaiChat import openai_txt_chat, openai_gpt_chat
+from OpenAIHelper import send_chat
 
 # utils
 # getting img
@@ -30,7 +24,7 @@ proxyList = []
 
 
 async def showImg(ctx, targetUrl, color=None):
-    embed = discord.Embed(color=colorToHex(color))
+    embed = discord.Embed(color=hex_color_string_to_int(color))
     embed.set_image(url=targetUrl)
     await ctx.channel.send(embed=embed)
 
@@ -40,7 +34,7 @@ async def showImg(ctx, targetUrl, color=None):
 def embedCreator(title, description, color=None, authorName=None, authorUrl=None, thumbnailUrl=None, imageUrl=None):
     embed = discord.Embed(
         title=title,
-        colour=discord.Colour(colorToHex(color)),
+        colour=discord.Colour(hex_color_string_to_int(color)),
         description=description
         # url="https://www.google.com", # this is the link for title
     )
@@ -67,176 +61,13 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         return
     origin = ctx.content  # received message
 
-    # 直接播音樂模組: 頻道名稱有 '音樂' 或 'music' 才會觸發
-    if "music" in ctx.channel.name or "音樂" in ctx.channel.name:
-        if ctx.content.startswith("http"):
-            urlList = origin.split("\n")
-            origin = ""
-            for cmd in urlList:
-                if cmd.startswith("http"):
-                    origin += '!play ' + cmd + "\n" # music channel directly paste url
-
     # preprocess
     rawMsg = origin.split(sep=" ")
     msg = rawMsg[0]
     CMD_PF = SQL.queryPrefixURL(ctx.guild.id)
 
-    # proxy chat send
-    if isProxyMode and "proxy" in ctx.channel.name:
-        if origin == "!proxy":
-            isProxyMode = False
-            proxyList.clear()
-            await ctx.channel.send("---代理聊天已結束---")
-            return
-        for i in proxyList:
-            chn = client.get_channel(i)
-            await chn.send(origin)
-        return
-
-    # voice channel
-    if msg.lower() == CMD_PF+"join" or msg.lower() == CMD_PF+"j":
-        await MusicModule.joining(ctx)
-
-    elif msg.lower() == CMD_PF+"kick" or msg.lower() == CMD_PF+"k":
-        await MusicModule.leaving(ctx)
-
-    elif msg.lower() == CMD_PF+"play" or msg.lower() == CMD_PF+"p":
-        if isFromEdit:
-            return
-        try:
-            # initial
-            if MusicModule.vc is None:
-                await MusicModule.joining(ctx)
-
-            # play
-            if len(rawMsg) > 1:  # with src
-                localUrl = SQL.queryAlarmUrl(rawMsg[1])
-                if localUrl != "":
-                    MusicModule.playSource(localUrl)
-                else:
-                    urlList = origin.split("\n")
-                    for eachCmd in urlList:
-                        urlSplit = eachCmd.split(" ")
-                        if len(urlSplit) > 1:
-                            ytRawLink = urlSplit[1].split("&")[0]
-                            MusicModule.playYT(ytRawLink)
-            else:
-                if MusicModule.audioSource != None:
-                    MusicModule.vc.resume()
-                else:
-                    MusicModule.playSource(SQL.queryAlarmUrl("4"))
-        except Exception as e:
-            log(e)
-            await ctx.channel.send("發生錯誤ＱwＱ")
-
-    elif msg.lower() == CMD_PF+"pause" or msg.lower() == CMD_PF+"pau":
-        try:
-            if MusicModule.is_playing:
-                MusicModule.vc.pause()
-        except Exception:
-            log("Nothing to pause")
-
-    elif msg.lower() == CMD_PF+"next":
-        try:
-            if MusicModule.is_playing:
-                MusicModule.vc.stop()
-                MusicModule.is_playing = False
-        except Exception:
-            log("Nothing to next")
-
-    elif msg.lower() == CMD_PF+"stop":
-        try:
-            if MusicModule.is_playing:
-                MusicModule.clearPlaylist()
-                MusicModule.vc.stop()
-                MusicModule.is_playing = False
-        except Exception:
-            log("Nothing to stop")
-
-    elif msg.lower() == CMD_PF+"list":
-        if len(rawMsg) == 1:
-            if len(MusicModule.getPlaylist()) == 0:
-                await ctx.channel.send("清單是空的OuO")
-            else:
-                str1 = "待播歌曲:\n"
-                for i in MusicModule.getPlaylist():
-                    str1 += i + "\n"
-                await ctx.channel.send(str1)
-        else:
-            if rawMsg[1] == "clear":
-                MusicModule.clearPlaylist()
-                await ctx.channel.send("清單已清除")
-
-    # get random waifu photo
-    elif msg == "這是我的翅膀" or msg.lower() == 'anipic':
-        dbUrl = SQL.queryUrl('這是我的翅膀')
-        if dbUrl != "":
-            try:
-                response = requests.get(dbUrl[0], timeout=10)
-                # Getting 307 redirected new url and send out
-                if response.history:
-                    await ctx.channel.send('認識一下😎')
-                    await ctx.channel.send(response.url)
-            except Exception as e:
-                log(e)
-        else:
-            await ctx.channel.send('出現異常錯誤啦~~')
-
-    # Get Technology Courses
-    elif msg.lower() == "geek":
-        # Split message
-        try:
-            # Determine the type of query
-            dbUrl = SQL.queryUrl('geek')
-            if dbUrl != "":
-                try:
-                    ressetting = RequestSetting()
-                    # Setting Headers
-                    ressetting.setHeaders(
-                        {
-                            "Content-Type": "application/json",
-                            "Origin": "https://time.geekbang.org",
-                            "Referer": "https://time.geekbang.org",
-                            "Host": "time.geekbang.org"
-                        }
-                    )
-
-                    response = requests.post(
-                        dbUrl[0], json={'page': 'pc_home'}, headers=ressetting.getHeaders(), timeout=10).json()
-
-                    # Response List: 8：直播（對應指令1） 1：小編推薦（對應指令2）
-                    if (rawMsg[1] == '1'):
-                        await ctx.channel.send('😎未來幾天的技術直播資訊')
-                        await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
-                        for list in response['data']['list'][8]['list']:
-                            await ctx.channel.send(
-                                '標體：' + str(list['title']) + '\n' +
-                                '描述：' + str(list['subtitle']) + '\n' +
-                                '連結：' + str(list['live_url']) + '\n'
-                            )
-                            await showImg(ctx, list['cover'])
-                    elif (rawMsg[1] == '2'):
-                        await ctx.channel.send('😏今日推薦')
-                        await showImg(ctx, 'https://i.imgur.com/HXrWMXj.png')
-                        for list in response['data']['list'][1]['list']:
-                            await ctx.channel.send(
-                                '標體：' + str(list['main_title']) + '\n' +
-                                '描述：' + str(list['reason']) + '\n' +
-                                '連結：https://time.geekbang.org/dailylesson/detail/' +
-                                str(list['sku']) + '\n'
-                            )
-                            await showImg(ctx, list['cover'])
-                    else:
-                        await ctx.channel.send('目前只有1跟2而已哦~~例如可以輸入geek 1')
-                except Exception as e:
-                    log(e)
-            else:
-                await ctx.channel.send('出現異常錯誤啦~~')
-        except Exception:
-            await ctx.channel.send('我猜你是想要查詢geek的資訊，請輸入 geek 1\n 1：技術直播資訊 2：今日推薦～')
-
     # gifs
-    elif (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
+    if (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
         await ctx.channel.send('A')
         dbUrl = SQL.queryUrl('a')
         if dbUrl != "":
@@ -259,51 +90,11 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         await ctx.channel.send('https://tenor.com/view/hololive-%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96-hologra-%E3%83%9B%E3%83%AD%E3%81%90%E3%82%89-nakiri-ayame-gif-23864357')
         await ctx.channel.send("百鬼距離上次開台過了 %d天 %d小時 %d分 %d秒" % (diff.days, hr, minute, sec))
 
-    # get off counter
-    elif msg.lower() == CMD_PF + 'getoff':
-        y = time.localtime().tm_year
-        M = time.localtime().tm_mon
-        D = time.localtime().tm_mday
-        h = time.localtime().tm_hour
-        m = time.localtime().tm_min
-        s = time.localtime().tm_sec
-        nowDate = datetime(y, M, D, h, m, s)
-        off = datetime(y, M, D, 17, 30, 00)
-        diff = off-nowDate
-        imgSrc = SQL.queryUrl("getoff")
-        if diff.days < 0:
-            await ctx.channel.send("下班摟~")
-            if len(imgSrc) != 0:
-                await showImg(ctx, imgSrc[0], imgSrc[1])
-        else:
-            sec = diff.seconds
-            if sec >= 34200:
-                await ctx.channel.send("還沒上班拉")
-            else:
-                hh = sec / 3600
-                mm = (sec % 3600) / 60
-                ss = sec % 60
-                await ctx.channel.send("還有 %d小時%d分%d秒 下班~" % (hh, mm, ss))
-
-    # proxy chat mode
-    elif msg.lower() == CMD_PF + "proxy":
-        if len(rawMsg) == 2:
-            isProxyMode = True
-            cmd = rawMsg[1]
-            proxyList = SQL.queryProxyChat(cmd)
-            if len(proxyList) == 0:
-                isProxyMode = False
-                await ctx.channel.send("---指令錯誤---")
-            else:
-                await ctx.channel.send("---代理聊天已啟動---")
-
     # leetcode
     elif msg.lower() == CMD_PF + 'leet':
         toSend = ""
         if len(rawMsg) == 1:
-            toSend = LCC.dailyProblem()
-        elif len(rawMsg) == 2 and rawMsg[1].lower() == 'ac':
-            toSend = LCC.dailyProblemAC()
+            toSend = LCC.fetch_daily_problem()
         else:
             return
 
@@ -318,7 +109,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
 
     elif msg.lower() == CMD_PF + 'leetrand':
         await ctx.delete()
-        await ctx.channel.send(LCC.randProblem())
+        await ctx.channel.send(LCC.fetch_random_problem())
 
     # bot state
     elif msg.lower() == CMD_PF + 'cs':
@@ -332,8 +123,8 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             await client.change_presence(status=discord.Status.online, activity=state)
 
     # computer info
-    elif msg.lower() == CMD_PF + 'status':
-        await ctx.channel.send(getAllInfo())
+    # elif msg.lower() == CMD_PF + 'status':
+        # await ctx.channel.send(getAllInfo())
 
     # run script
     elif msg.lower() == CMD_PF + "sh":
@@ -390,141 +181,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     elif msg.lower() == CMD_PF + 'heart':
         await ctx.channel.send("幫古拉按個星星吧 <:gura_peek_wall:980739498474348595>\nhttps://github.com/allen870619/GuraDiscordBot")
 
-    # 抽卡機
-    # 抽卡
-    elif rawMsg[0].lower() == CMD_PF + 'draw':
-        # get desire draw time
-        if len(rawMsg) == 1:
-            times = 1
-        else:
-            try:
-                times = int(rawMsg[1])
-                if times > 50: 
-                    times = 50
-            except Exception:
-                times = 1
-
-        # calculate coins and free
-        actualDraw = 0
-        containFreeDraw = False
-        coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
-        free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
-        allFree = free
-        for _ in range(0, times):
-            if coin < DrawSQL.drawCost and free == 0:
-                break
-            actualDraw += 1
-            hasFree = free > 0
-            if hasFree:
-                free -= 1
-            else:
-                coin -= DrawSQL.drawCost
-            DrawSQL.drawConsume(ctx.author.id, ctx.guild.id, hasFree)
-
-        # discount when draw 10 cards
-        costDraw = actualDraw - allFree
-        if actualDraw >= 10 and costDraw > 0:
-            for _ in range(0, int(costDraw / 10)):
-                DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id, 5)
-
-        # send message
-        if actualDraw > 0:
-            cards = drawCard(ctx.author.id, ctx.guild.id, actualDraw)
-
-            await ctx.channel.send('抽卡 %d 張   <:gura_fascinate:922084439822053377>' % (actualDraw))
-            cardAlert = ""
-            for index, card in enumerate(cards):
-                if card.id == 1:
-                    allowed_mentions = discord.AllowedMentions(everyone=True)
-                    await ctx.channel.send(content="@everyone 全員注意!!", allowed_mentions=allowed_mentions)
-                    await ctx.channel.send('恭喜<@%s> 抽到 鯊魚本人\n%s卡「 *%s* 」!!!!!!' % (ctx.author.id, card.rarityData.name, card.name))
-                else:
-                    cardAlert += "恭喜<@%s> 抽到 %s卡「 *%s* 」\n" % (
-                        ctx.author.id, card.rarityData.name, card.name)
-                if (index+1) % 10 == 0 and cardAlert != "":
-                    await ctx.channel.send(cardAlert)
-                    cardAlert = ""
-            if cardAlert != "":
-                await ctx.channel.send(cardAlert)
-        else:
-            await ctx.channel.send("代幣不足 <:gura_cry:922084439465553920>")
-
-    # 卡池
-    elif msg.lower() == CMD_PF + 'drawpool':
-        pool = cardPool()
-        embedList = []
-        colorList = ["#ec695e", "#ab5d75", "#6a518c", "#2a46a4"]
-        colorIndex = 0
-        for data in pool:
-            rarity = data[0]
-            cardList = data[1]
-
-            # form up text
-            title = "%s 卡池 (%s%%)\n分解 %d 金幣" % (
-                rarity.name, rarity.probability, rarity.decompose)
-            strCardList = ""
-            for card in cardList:
-                strCardList += "%d. %s \n -> %s%%\n" % (card.id,
-                                                        card.name,
-                                                        card.probability)
-
-            embedList.append(embedCreator(
-                title, strCardList, colorList[colorIndex]))
-            colorIndex += 1
-
-        for i in embedList:
-            await ctx.channel.send(embed=i)
-
-    # 代幣餘額
-    elif msg.lower() == CMD_PF + "drawcoin":
-        coin = DrawSQL.getUsrDrawCoin(ctx.author.id, ctx.guild.id)
-        free = DrawSQL.getFreeDraw(ctx.author.id, ctx.guild.id)
-        await ctx.channel.send("<@%d> 剩餘代幣: %d, 免費次數: %d" % (ctx.author.id, coin, free))
-
-    # 查詢自己有的卡
-    elif msg.lower() == CMD_PF + "mycard":
-        list = DrawSQL.getUsrCardList(ctx.author.id, ctx.guild.id)
-        if len(list) == 0:
-            await ctx.channel.send("<@%d>卡片空空如也 0.0" % (ctx.author.id))
-            return
-
-        allData = "<@%d> 持有的卡片\n" % (ctx.author.id)
-        for data in list:
-            # form up text
-            allData += "-----%s 卡-----\n" % (data[0]["rarity_name"])
-            for card in data:
-                allData += "%s. %s : %s張\n" % (card["card_id"],
-                                               card["card_name"],
-                                               card["card_mount"])
-            allData += "\n"
-        await ctx.channel.send(allData)
-
-    # 分解卡片
-    elif rawMsg[0].lower() == CMD_PF + "decomp":
-        if len(rawMsg) == 3:
-            try:
-                id = int(rawMsg[1])
-                count = int(rawMsg[2])
-                isPass = True
-            except e:
-                isPass = False
-        elif len(rawMsg) == 2:
-            try:
-                id = int(rawMsg[1])
-                count = 1
-                isPass = True
-            except e:
-                isPass = False
-        else:
-            await ctx.channel.send("指令錯誤 <:gura_angry:922084439813673001>")
-            isPass = False
-        if isPass:
-            result = decomposeCard(ctx.author.id, ctx.guild.id, id, count)
-            if result is None:
-                await ctx.channel.send("你沒有這張卡 <:gura_cry:922084439465553920>")
-            else:
-                await ctx.channel.send("<@%d> 分解%d張卡, 獲得%d枚金幣" % (ctx.author.id, result[0], result[1]))
-
     # thxhf
     elif msg.lower() == CMD_PF + 'thxhf':
         count = SQL.queryThxHf(ctx.author.id, ctx.guild.id)
@@ -543,14 +199,14 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     elif rawMsg[0].lower() == CMD_PF + "ask" and ctx.channel.id == 1078152776300896338:
         prompts = origin[5:]
         
-        txt = openai_txt_chat(prompts)
+        txt = send_chat(prompts, ctx.author.id)
         str = f"<@{ctx.author.id}> \n{txt}"
         await ctx.channel.send(str)
     
-    # openai chat
-    elif (ctx.channel.id == 1081213613274050620 or ctx.channel.id == 1127251556690034738) and len(origin) > 0:
-        resp = openai_gpt_chat(origin, user_id=ctx.author.id)
-        await ctx.channel.send(resp)
+    # openai chat 
+    elif (ctx.channel.id == 1081213613274050620 or ctx.channel.id == 1127251556690034738) and len(origin) > 0:  
+        response_text = send_chat(origin, user_id=ctx.author.id)
+        await ctx.channel.send(response_text)
 
     # help
     elif msg == CMD_PF + '功能' or msg.lower() == CMD_PF + 'func' or msg.lower() == CMD_PF + 'help':
@@ -594,37 +250,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             color="#819dd4",
         )
 
-        # Music
-        musicDesc = f'''
-        # {CMD_PF}join / {CMD_PF}kick 
-        -呼叫/趕走唱歌的鯊鯊(請在語音頻道使用)
-        # {CMD_PF}play [1, 2, 3, 4, <url>] 
-        -鯊鯊語音(1,2,3,4為鬧鐘, 預設4)/恢復暫停播放
-        # {CMD_PF}pause -暫停
-        # {CMD_PF}stop -停止(清單會被清除)
-        # {CMD_PF}next -清單下一首
-        # {CMD_PF}list [clear] -清單/清單清除
-        '''
-        music = embedCreator(
-            title="---鯊魚廣播---",
-            description=musicDesc,
-            color="#6582c9",
-        )
-
-        # Draw
-        drawCardDesc = f'''
-        # {CMD_PF}draw [time=1] 抽卡[次數, 最多10張]
-        # {CMD_PF}drawPool 卡池資訊
-        # {CMD_PF}drawCoin 查詢剩餘代幣
-        # {CMD_PF}mycard 查詢持有的卡片
-        # {CMD_PF}decomp <id> [count=1] 分解持有的卡片
-        '''
-        drawCardHint = embedCreator(
-            title="---血統認證機(開發中)---",
-            description=drawCardDesc,
-            color="#819dd4",
-        )
-
         # Others
         otherDesc = f'''
         # {CMD_PF}status 主機狀態
@@ -657,8 +282,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
 
         await ctx.channel.send(embed=intro)
         await ctx.channel.send(embed=leetcode)
-        await ctx.channel.send(embed=music)
-        await ctx.channel.send(embed=drawCardHint)
         await ctx.channel.send(embed=other)
         await ctx.channel.send(embed=pic)    
     else:
@@ -680,17 +303,4 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 await showImg(ctx, dbUrl[0], dbUrl[1])
             else:
                 await ctx.channel.send(dbUrl[0])
-        else:
-            # 增加代幣
-            DrawSQL.drawAddCoin(ctx.author.id, ctx.guild.id)
     
-
-
-async def memeWarning(self, client, ctx, memo=None):
-    if ctx.author == self.user:
-        return
-    chn = client.get_channel(929379945346629642)
-    if memo is None or memo == '':
-        await chn.send('<@%s> 不要在梗圖版打字 <:gura_angry:922084439813673001>' % (ctx.author.id))
-    else:
-        await chn.send('<@%s> %s' % (ctx.author.id, memo))
