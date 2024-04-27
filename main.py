@@ -9,7 +9,7 @@ from package.Utils.Utils import flush_log, generate_log
 import SQLConnect as SQL
 import ExpModule
 import Message as message
-
+import traceback
 
 class DiscordAppClient(discord.Client):
     # main func
@@ -97,13 +97,11 @@ class DiscordAppClient(discord.Client):
             await message.messageReact(self, client, message_context, isFromEdit=True)
             
     # error
-    # async def on_error(self, event, *args, **kwargs):
-    #     try:
-    #         logStr = "[ERROR]", event, args[0]
-    #     except:
-    #         logStr = "[ERROR]", event
-    #     flush_log(logStr)
-  
+    async def on_error(self, event, *args, **kwargs):
+        traceback_message = traceback.format_exc()
+        logStr = "[ERROR]", traceback_message 
+        flush_log(logStr)
+
     # daily schedule
     async def run_daily_schedule_service(self):
         flush_log("[SYS] Daily scheduler activated")
