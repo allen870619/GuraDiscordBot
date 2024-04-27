@@ -1,7 +1,6 @@
 import discord
 import subprocess
 import LeetcodeCrawler as LCC
-import MusicModule
 from datetime import datetime
 # 發圖片請求用
 import requests
@@ -62,96 +61,13 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         return
     origin = ctx.content  # received message
 
-    # 直接播音樂模組: 頻道名稱有 '音樂' 或 'music' 才會觸發
-    if "music" in ctx.channel.name or "音樂" in ctx.channel.name:
-        if ctx.content.startswith("http"):
-            urlList = origin.split("\n")
-            origin = ""
-            for cmd in urlList:
-                if cmd.startswith("http"):
-                    origin += '!play ' + cmd + "\n" # music channel directly paste url
-
     # preprocess
     rawMsg = origin.split(sep=" ")
     msg = rawMsg[0]
     CMD_PF = SQL.queryPrefixURL(ctx.guild.id)
 
-    # voice channel
-    if msg.lower() == CMD_PF+"join" or msg.lower() == CMD_PF+"j":
-        await MusicModule.joining(ctx)
-
-    elif msg.lower() == CMD_PF+"kick" or msg.lower() == CMD_PF+"k":
-        await MusicModule.leaving(ctx)
-
-    elif msg.lower() == CMD_PF+"play" or msg.lower() == CMD_PF+"p":
-        if isFromEdit:
-            return
-        try:
-            # initial
-            if MusicModule.vc is None:
-                await MusicModule.joining(ctx)
-
-            # play
-            if len(rawMsg) > 1:  # with src
-                localUrl = SQL.queryAlarmUrl(rawMsg[1])
-                if localUrl != "":
-                    MusicModule.playSource(localUrl)
-                else:
-                    urlList = origin.split("\n")
-                    for eachCmd in urlList:
-                        urlSplit = eachCmd.split(" ")
-                        if len(urlSplit) > 1:
-                            ytRawLink = urlSplit[1].split("&")[0]
-                            MusicModule.playYT(ytRawLink)
-            else:
-                if MusicModule.audioSource != None:
-                    MusicModule.vc.resume()
-                else:
-                    MusicModule.playSource(SQL.queryAlarmUrl("4"))
-        except Exception as e:
-            flush_log(e)
-            await ctx.channel.send("發生錯誤ＱwＱ")
-
-    elif msg.lower() == CMD_PF+"pause" or msg.lower() == CMD_PF+"pau":
-        try:
-            if MusicModule.is_playing:
-                MusicModule.vc.pause()
-        except Exception:
-            flush_log("Nothing to pause")
-
-    elif msg.lower() == CMD_PF+"next":
-        try:
-            if MusicModule.is_playing:
-                MusicModule.vc.stop()
-                MusicModule.is_playing = False
-        except Exception:
-            flush_log("Nothing to next")
-
-    elif msg.lower() == CMD_PF+"stop":
-        try:
-            if MusicModule.is_playing:
-                MusicModule.clearPlaylist()
-                MusicModule.vc.stop()
-                MusicModule.is_playing = False
-        except Exception:
-            flush_log("Nothing to stop")
-
-    elif msg.lower() == CMD_PF+"list":
-        if len(rawMsg) == 1:
-            if len(MusicModule.getPlaylist()) == 0:
-                await ctx.channel.send("清單是空的OuO")
-            else:
-                str1 = "待播歌曲:\n"
-                for i in MusicModule.getPlaylist():
-                    str1 += i + "\n"
-                await ctx.channel.send(str1)
-        else:
-            if rawMsg[1] == "clear":
-                MusicModule.clearPlaylist()
-                await ctx.channel.send("清單已清除")
-
     # gifs
-    elif (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
+    if (msg.lower() == 'a') or (msg.lower() == 'ａ') or (msg == 'ā') or (msg == 'あ') or (msg.lower() == 'aa'):
         await ctx.channel.send('A')
         dbUrl = SQL.queryUrl('a')
         if dbUrl != "":
@@ -334,23 +250,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
             color="#819dd4",
         )
 
-        # Music
-        musicDesc = f'''
-        # {CMD_PF}join / {CMD_PF}kick 
-        -呼叫/趕走唱歌的鯊鯊(請在語音頻道使用)
-        # {CMD_PF}play [1, 2, 3, 4, <url>] 
-        -鯊鯊語音(1,2,3,4為鬧鐘, 預設4)/恢復暫停播放
-        # {CMD_PF}pause -暫停
-        # {CMD_PF}stop -停止(清單會被清除)
-        # {CMD_PF}next -清單下一首
-        # {CMD_PF}list [clear] -清單/清單清除
-        '''
-        music = embedCreator(
-            title="---鯊魚廣播---",
-            description=musicDesc,
-            color="#6582c9",
-        )
-
         # Others
         otherDesc = f'''
         # {CMD_PF}status 主機狀態
@@ -383,7 +282,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
 
         await ctx.channel.send(embed=intro)
         await ctx.channel.send(embed=leetcode)
-        await ctx.channel.send(embed=music)
         await ctx.channel.send(embed=other)
         await ctx.channel.send(embed=pic)    
     else:

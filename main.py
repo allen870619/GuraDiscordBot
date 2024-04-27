@@ -1,7 +1,6 @@
 import discord
 import datetime
 # import Message as Msg
-import MusicModule
 import LeetcodeCrawler as LCC
 import asyncio
 from EnvData import TOKEN
