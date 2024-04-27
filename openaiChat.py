@@ -1,58 +1,65 @@
-import openai
 import dotenv
+import tiktoken
+from openai import OpenAI
 from EnvData import OPENAI_API_KEY
 from package.Utils.Utils import flush_log
 
 dotenv.load_dotenv()
-openai.api_key = OPENAI_API_KEY
-
-
-def openai_txt_chat(prompt):
-    # Load your API key from an environment variable or secret management service
-    response = openai.Completion.create(model="text-davinci-003",
-                                        prompt=prompt,
-                                        temperature=0.9,
-                                        n=3,
-                                        max_tokens=2000)
-    responseText = response["choices"][0]["text"]
-    return responseText[2:]
-
+client = OpenAI()
+client.api_key =  OPENAI_API_KEY
 
 message_list = []
 token_list = []
 current_token = 0
+max_token = 4096
+max_response_token = 1024
 
-def openai_gpt_chat(msgToSend: str, user_id):
+def main():    
     global message_list, token_list, current_token
-    max_token = 1024
-    
-    # prepare sending message
-    to_send_msg = {"role": "user", "content": msgToSend}
-    tmp_list = message_list
-    tmp_list.append(to_send_msg)
-    
+
+    predefine_message = "どうも、サメです！我是最可愛的 Hololive Vtuber「Gawr Gura」，知道世界萬物的資訊，同時精通日文、中文、英文，如果你有什麼想問的問題都可以問我哦，Arrr~"
+    predefine_message_token = num_tokens_from_string(predefine_message)
+
+    message_list = [{"role": "assistant", "content": f"{predefine_message}"}] 
+    token_list.append(predefine_message_token)
+    current_token = predefine_message_token
+
+def num_tokens_from_string(string: str) -> int:
+    encoding = tiktoken.get_encoding("cl100k_base")
+    num_tokens = len(encoding.encode(string))
+    return num_tokens
+
+def send_chat(message, user_id):
+    global message_list, token_list, current_token, max_token, max_response_token
+
+    to_send_message_token = num_tokens_from_string(message)
+    message_package = {"role": "user", "name": f"{user_id}", "content": f"{message}"}
+    message_list.append(message_package)
+    token_list.append(to_send_message_token)
+
+    while current_token > max_token:
+        message_list.pop(0)
+        current_token -= token_list.pop(0)
+
     try: 
-        response = openai.ChatCompletion.create(model="gpt-3.5-turbo",
-                                                messages=tmp_list,
-                                                max_tokens=max_token,
-                                                user=f"{user_id}")
-        content = str(response["choices"][0]["message"]["content"])
-        while content.startswith("\n"):
-            content = content.removeprefix("\n")
-        message_list = tmp_list
-        message_list.append({"role": "user", "content": f"{content}"})
-        
-        # token
-        msg_token = response["usage"]["prompt_tokens"]
-        completion_tokens = response["usage"]["completion_tokens"]
-        token_list.append(msg_token)
-        token_list.append(completion_tokens)
-        current_token += msg_token + completion_tokens
-        
-        while current_token + max_token > 4096:
-            message_list.pop(0)
-            current_token -= token_list.pop(0)
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=message_list,
+            max_tokens=max_response_token
+        )
     except Exception as e:
         flush_log(e)
         return "伺服器涼了 { 6 Д 9 } 請再試一次"
-    return content
+
+    token = response.usage.completion_tokens
+    choice = response.choices[-1]
+
+    message_list.append(choice.message)
+    token_list.append(token)
+    current_token += token
+    
+    return choice.message.content
+
+
+if __name__ == '__main__':
+    main()
