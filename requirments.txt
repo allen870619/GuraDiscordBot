@@ -8,3 +8,4 @@ numpy
 opencc-python-reimplemented
 pynacl
 openai
+tiktoken
