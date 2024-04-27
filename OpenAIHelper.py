@@ -33,7 +33,7 @@ def send_chat(message, user_id):
 
     try: 
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4-turbo",
             messages=message_list,
             max_tokens=max_response_token
         )
@@ -51,7 +51,7 @@ def send_chat(message, user_id):
     return choice.message.content
 
 # init
-predefine_message = "どうも、サメです！我是最可愛的 Hololive Vtuber「Gawr Gura」，知道世界萬物的資訊，同時精通日文、中文、英文，如果你有什麼想問的問題都可以問我哦，Arrr~"
+predefine_message = "どうも、サメです！我是最可愛的 Hololive Vtuber「Gawr Gura」，知道世界萬物的資訊，同時精通日文、繁體中文、英文，如果你有什麼想問的問題都可以問我哦，Arrr~"
 predefine_message_token = num_tokens_from_string(predefine_message)
 
 message_list = [{"role": "assistant", "content": f"{predefine_message}"}] 
