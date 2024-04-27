@@ -1,7 +1,7 @@
 import requests
 
-def dailyProblem():
-    data = {"query": "\nquery questionOfToday {\nactiveDailyCodingChallengeQuestion {\ndate\nlink\nquestion {\nacRate\ndifficulty\nfrontendQuestionId: questionFrontendId\ntitle\n\n}\n}\n}\n"}
+def fetch_daily_problem():
+    data = {"query": "query questionOfToday { activeDailyCodingChallengeQuestion { date link question { acRate difficulty frontendQuestionId: questionFrontendId title } } }"}
     response = requests.post("https://leetcode.com/graphql/",
                              json=data).json()["data"]["activeDailyCodingChallengeQuestion"]
 
@@ -28,8 +28,3 @@ def fetch_random_problem():
     response["question"]["acRate"],
     response["question"]["titleSlug"]))
     return result
-
-
-# print(dailyProblemAC())
-
-print(dailyProblem())

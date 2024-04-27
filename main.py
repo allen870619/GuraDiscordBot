@@ -119,7 +119,7 @@ class DiscordAppClient(discord.Client):
             await asyncio.sleep(1)
 
     async def publish_leetcode(self):
-        question = LCC.dailyProblem()
+        question = LCC.fetch_daily_problem()
 
         channel_list = SQL.queryLeetChn()
         for channel_id in channel_list:

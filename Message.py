@@ -181,7 +181,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     elif msg.lower() == CMD_PF + 'leet':
         toSend = ""
         if len(rawMsg) == 1:
-            toSend = LCC.dailyProblem()
+            toSend = LCC.fetch_daily_problem()
         else:
             return
 
