@@ -11,7 +11,7 @@ client.api_key =  OPENAI_API_KEY
 message_list = []
 token_list = []
 current_token = 0
-max_token = 4096
+max_token = 10240
 max_response_token = 1024
 
 def num_tokens_from_string(string: str) -> int:
