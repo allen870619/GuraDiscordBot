@@ -13,18 +13,6 @@ def dailyProblem():
     response["link"]))
     return result
 
-def dailyProblemAC():
-    data = {"query": "\nquery questionOfToday {\nactiveDailyCodingChallengeQuestion {\ndate\nlink\nquestion {\nacRate\ndifficulty\nfrontendQuestionId: questionFrontendId\ntitle\n\n}\n}\n}\n"}
-    raw = requests.post("https://leetcode.com/graphql/",
-                             json=data).json()
-
-    response = raw["data"]["activeDailyCodingChallengeQuestion"]
-    result = ("%s\n%s. %s  \n(AC %.2f%%)"%(response["date"],
-    response["question"]["frontendQuestionId"],
-    response["question"]["title"],
-    response["question"]["acRate"]))
-    return result
-
 def fetch_random_problem():
     # get title
     data = {"query":"query randomQuestion($categorySlug: String, $filters: QuestionListFilterInput) { randomQuestion(categorySlug: $categorySlug, filters: $filters) { titleSlug } }","variables":{"categorySlug":"","filters":{}}}

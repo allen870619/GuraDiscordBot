@@ -182,8 +182,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         toSend = ""
         if len(rawMsg) == 1:
             toSend = LCC.dailyProblem()
-        elif len(rawMsg) == 2 and rawMsg[1].lower() == 'ac':
-            toSend = LCC.dailyProblemAC()
         else:
             return
 
@@ -198,7 +196,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
 
     elif msg.lower() == CMD_PF + 'leetrand':
         await ctx.delete()
-        await ctx.channel.send(LCC.randProblem())
+        await ctx.channel.send(LCC.fetch_random_problem())
 
     # bot state
     elif msg.lower() == CMD_PF + 'cs':
