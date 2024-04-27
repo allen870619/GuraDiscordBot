@@ -6,12 +6,12 @@ from datetime import datetime
 import requests
 # Requests基本設定Class
 import SQLConnect as SQL
-from package.Utils.Utils import flush_log, hex_color_string_to_int
+from package.Utils.Utils import hex_color_string_to_int
 from PsutilSensor import getAllInfo
 # 雞湯
 from PoisonSoup import getPoisonSoup
 # openai
-from openaiChat import openai_txt_chat, openai_gpt_chat
+from OpenAIHelper import send_chat
 
 # utils
 # getting img
@@ -199,13 +199,13 @@ async def messageReact(self, client, ctx, isFromEdit=False):
     elif rawMsg[0].lower() == CMD_PF + "ask" and ctx.channel.id == 1078152776300896338:
         prompts = origin[5:]
         
-        txt = openai_txt_chat(prompts)
+        txt = send_chat(prompts, ctx.author.id)
         str = f"<@{ctx.author.id}> \n{txt}"
         await ctx.channel.send(str)
     
     # openai chat
     elif (ctx.channel.id == 1081213613274050620 or ctx.channel.id == 1127251556690034738) and len(origin) > 0:
-        resp = openai_gpt_chat(origin, user_id=ctx.author.id)
+        resp = send_chat(origin, user_id=ctx.author.id)
         await ctx.channel.send(resp)
 
     # help
