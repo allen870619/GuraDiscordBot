@@ -33,7 +33,7 @@ def send_chat(message, user_id):
 
     try: 
         response = client.chat.completions.create(
-            model="gpt-4-turbo",
+            model="gpt-4o",
             messages=message_list,
             max_tokens=max_response_token
         )
