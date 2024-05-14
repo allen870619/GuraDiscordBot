@@ -204,7 +204,7 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         await ctx.channel.send(str)
     
     # openai chat 
-    elif (ctx.channel.id == 1081213613274050620 or ctx.channel.id == 1127251556690034738) and len(origin) > 0:  
+    elif (ctx.channel.id == 1081213613274050620 or ctx.channel.id == 1127251556690034738 or ctx.channel.id == 1239966332641087693) and len(origin) > 0:  
         response_text = send_chat(origin, user_id=ctx.author.id)
         await ctx.channel.send(response_text)
 
