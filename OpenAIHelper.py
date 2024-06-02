@@ -11,8 +11,8 @@ client.api_key =  OPENAI_API_KEY
 message_list = []
 token_list = []
 current_token = 0
-max_token = 10240
-max_response_token = 1024
+max_token = 5120
+max_response_token =  512
 
 def num_tokens_from_string(string: str) -> int:
     encoding = tiktoken.get_encoding("cl100k_base")
