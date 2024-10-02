@@ -73,11 +73,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         if dbUrl != "":
             await showImg(ctx, dbUrl[0], dbUrl[1])
 
-    elif (msg == CMD_PF+"集合") or (msg.lower() == CMD_PF+"gather") or (msg.lower() == CMD_PF+"g"):
-        allowed_mentions = discord.AllowedMentions(everyone=True)
-        await ctx.channel.send(content="@everyone 集合嘍～～", allowed_mentions=allowed_mentions)
-        await showImg(ctx, 'https://c.tenor.com/agmJYnSKj50AAAAC/gwar-gura-gura.gif')
-
     # ayame counter
     elif msg.lower() == CMD_PF + 'ayame':
         url = 'https://script.googleusercontent.com/macros/echo?user_content_key=OspWpl4Qc16jCdPwz6_BPHH5AOV_Zq1NIzWa9La-IGzsetFs_geoxiLZ-LgDlp4TR3O5NZR5OHn1-eF4sK-NFMcmF9r1nS69m5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnNqVaIg6uWIusfaT6109P6AiX8-Jc70itxwf3vkR0F4vwX0NWBNrxNkTEKkvViUG5ASCAyw-o_Tv2w637yi-8rE7WE8Pq9zTnw&lib=Mv0Flh1wcXT8fGz2m4i_W0fGCLS4z58-Q'
