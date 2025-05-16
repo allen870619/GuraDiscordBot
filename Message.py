@@ -12,6 +12,7 @@ from package.Utils.Utils import hex_color_string_to_int
 from PoisonSoup import getPoisonSoup
 # openai
 from OpenAIHelper import send_chat
+import asyncio
 
 # utils
 # getting img
@@ -53,6 +54,13 @@ def embedCreator(title, description, color=None, authorName=None, authorUrl=None
 
     embed.set_footer(text="")
     return embed
+
+async def clock(client, channelId, userId):
+    await asyncio.sleep(60 * 60)
+    channel = client.get_channel(channelId)
+    str = "<@%d> 1 小時了，工作！" % (userId)
+    if channel != None:
+        await channel.send(str)
 
 
 async def messageReact(self, client, ctx, isFromEdit=False):
@@ -189,6 +197,9 @@ async def messageReact(self, client, ctx, isFromEdit=False):
         str = "<@%d> 已在 <#%d> 感謝HF **%d** 次, 真是太感謝了 <:gura_love_2:989819626282168321>" % (
             ctx.author.id, ctx.channel.id, count)
         await ctx.channel.send(str)
+
+    elif msg.lower() == CMD_PF + 'cd':
+        asyncio.create_task(clock(client, ctx.channel.id, ctx.author.id), name="Clock")
     
     # openai chat
     elif rawMsg[0].lower() == CMD_PF + "ask" and ctx.channel.id == 1078152776300896338:
