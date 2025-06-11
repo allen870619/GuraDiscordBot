@@ -125,10 +125,6 @@ async def messageReact(self, client, ctx, isFromEdit=False):
                 type=discord.ActivityType.watching, name=rawMsg[1])
             await client.change_presence(status=discord.Status.online, activity=state)
 
-    # computer info
-    # elif msg.lower() == CMD_PF + 'status':
-        # await ctx.channel.send(getAllInfo())
-
     # run script
     elif msg.lower() == CMD_PF + "sh":
         if len(rawMsg) == 2:
